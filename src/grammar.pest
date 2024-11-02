@@ -1,0 +1,15 @@
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+
+program = _{ SOI ~ statement ~ EOI }
+
+statement = { assignment }
+
+assignment = { "let" ~ identifier ~ "=" ~ expression ~ ";" }
+
+expression = { operator ~ expression ~ expression | number }
+
+operator = { "+" | "-" | "*" | "/" }
+
+number = @{ ASCII_DIGIT+ }
+
+identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
