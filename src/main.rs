@@ -53,10 +53,7 @@ fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
 fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
     debug_pair(&pair);
 
-    println!("original: {:?}", pair);
-    println!("clone: {:?}", pair.clone());
     let mut children = pair.clone().into_inner();
-    println!("{:?}", children);
 
     Assignment {
         identifier: children.next().unwrap().as_str().to_owned(),
@@ -91,7 +88,6 @@ fn build_expr_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
         }
         Rule::number => {
             let number = pair.as_str().parse::<i64>().unwrap();
-            println!("Debug number parse: {}", number);
             Expression::Number(number)
         }
         _ => unreachable!("[build_expr_ast] we fucked up tryna parse this: {:?}\n", pair)
