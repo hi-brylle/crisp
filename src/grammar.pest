@@ -6,10 +6,14 @@ statement = { assignment }
 
 assignment = { "let" ~ identifier ~ "=" ~ expression ~ ";" }
 
-expression = { operator ~ expression ~ expression | number }
+expression = { operator ~ expression ~ expression | (number | boolean) }
 
-operator = { "+" | "-" | "*" | "/" }
+operator = { "+" | "-" | "*" | "/" |
+    "==" | "!=" | "<" | "<=" | ">" | ">="
+}
 
 number = @{ ASCII_DIGIT+ }
+
+boolean = @{ "true" | "false" }
 
 identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }

@@ -50,6 +50,12 @@ fn build_expr_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
                         "-" => Expression::Sub(Box::new(left), Box::new(right)),
                         "*" => Expression::Mul(Box::new(left), Box::new(right)),
                         "/" => Expression::Div(Box::new(left), Box::new(right)),
+                        "==" => Expression::IsEq(Box::new(left), Box::new(right)),
+                        "!=" => Expression::NotEq(Box::new(left), Box::new(right)),
+                        "<" => Expression::Less(Box::new(left), Box::new(right)),
+                        "<=" => Expression::LessEq(Box::new(left), Box::new(right)),
+                        ">" => Expression::Greater(Box::new(left), Box::new(right)),
+                        ">=" => Expression::GreaterEq(Box::new(left), Box::new(right)),
                         _ => unreachable!()
                     }
                 }
@@ -58,6 +64,13 @@ fn build_expr_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
         Rule::number => {
             let number = pair.as_str().parse::<i64>().unwrap();
             Expression::Number(number)
+        }
+        Rule::boolean => {
+            match pair.as_str() {
+                "true" => Expression::Boolean(true),
+                "false" => Expression::Boolean(false),
+                _ => unreachable!("[build_expr_ast] we fucked up tryna parse this: {:?}\n", pair)
+            }
         }
         _ => unreachable!("[build_expr_ast] we fucked up tryna parse this: {:?}\n", pair)
     }
