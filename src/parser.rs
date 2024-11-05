@@ -56,16 +56,16 @@ fn build_expr_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             let rhs = build_expr_ast(children.next().unwrap());
 
             match binary_op {
-                "+" => Expression::Add(Box::new(lhs), Box::new(rhs)),
-                "-" => Expression::Sub(Box::new(lhs), Box::new(rhs)),
-                "*" => Expression::Mul(Box::new(lhs), Box::new(rhs)),
-                "/" => Expression::Div(Box::new(lhs), Box::new(rhs)),
-                "==" => Expression::IsEq(Box::new(lhs), Box::new(rhs)),
-                "!=" => Expression::NotEq(Box::new(lhs), Box::new(rhs)),
-                "<" => Expression::Less(Box::new(lhs), Box::new(rhs)),
-                "<=" => Expression::LessEq(Box::new(lhs), Box::new(rhs)),
-                ">" => Expression::Greater(Box::new(lhs), Box::new(rhs)),
-                ">=" => Expression::GreaterEq(Box::new(lhs), Box::new(rhs)),
+                "+" => Expression::Plus(Box::new(lhs), Box::new(rhs)),
+                "-" => Expression::Minus(Box::new(lhs), Box::new(rhs)),
+                "*" => Expression::Times(Box::new(lhs), Box::new(rhs)),
+                "/" => Expression::Divide(Box::new(lhs), Box::new(rhs)),
+                "==" => Expression::IsEqual(Box::new(lhs), Box::new(rhs)),
+                "!=" => Expression::NotEqual(Box::new(lhs), Box::new(rhs)),
+                "<" => Expression::LessThan(Box::new(lhs), Box::new(rhs)),
+                "<=" => Expression::LessThanOrEqual(Box::new(lhs), Box::new(rhs)),
+                ">" => Expression::GreaterThan(Box::new(lhs), Box::new(rhs)),
+                ">=" => Expression::GreaterThanOrEqual(Box::new(lhs), Box::new(rhs)),
                 "or" => Expression::Or(Box::new(lhs), Box::new(rhs)),
                 "and" => Expression::And(Box::new(lhs), Box::new(rhs)),
                 _ => unreachable!("Some binary operator not reached.")

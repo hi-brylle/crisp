@@ -19,7 +19,7 @@ UnaryOperator = { "-" | "not" }
 
 BinaryExpression = { "(" ~ BinaryOperator ~ Expression ~ Expression ~ ")" }
 
-BinaryOperator = { "+" | "-" | "*" | "/" |
+BinaryOperator = @{ "+" | "-" | "*" | "/" |
     "==" | "!=" | "<" | "<=" | ">" | ">=" |
     "or" | "and"
 }
