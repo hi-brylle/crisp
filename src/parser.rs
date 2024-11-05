@@ -4,7 +4,7 @@ pub fn build_ast(pair: pest::iterators::Pair<Rule>) -> Program {
     debug_pair(&pair);
 
     match pair.as_rule() {
-        Rule::statement => {
+        Rule::Statement => {
             Program {
                 statement: build_statement_ast(pair.into_inner().next().unwrap())
             }
@@ -34,7 +34,7 @@ fn build_expr_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
     debug_pair(&pair);
 
     match pair.as_rule() {
-        Rule::expression => {
+        Rule::Expression => {
             let mut children = pair.into_inner();
             match children.len() == 1 {
                 true => {
@@ -61,11 +61,11 @@ fn build_expr_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
                 }
             }
         }
-        Rule::number => {
+        Rule::Number => {
             let number = pair.as_str().parse::<i64>().unwrap();
             Expression::Number(number)
         }
-        Rule::boolean => {
+        Rule::Boolean => {
             match pair.as_str() {
                 "true" => Expression::Boolean(true),
                 "false" => Expression::Boolean(false),

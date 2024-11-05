@@ -14,7 +14,7 @@ mod parser;
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
 
-    let parse_result = GrammarParser::parse(Rule::program, &src);
+    let parse_result = GrammarParser::parse(Rule::Program, &src);
 
     match parse_result {
         Ok(mut pairs) => {

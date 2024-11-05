@@ -1,19 +1,19 @@
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 
-program = _{ SOI ~ statement ~ EOI }
+Program = _{ SOI ~ Statement ~ EOI }
 
-statement = { assignment }
+Statement = { Assignment }
 
-assignment = { "let" ~ identifier ~ "=" ~ expression ~ ";" }
+Assignment = { "let" ~ Identifier ~ "=" ~ Expression ~ ";" }
 
-expression = { operator ~ expression ~ expression | (number | boolean) }
+Expression = { Operator ~ Expression ~ Expression | (Number | Boolean) }
 
-operator = { "+" | "-" | "*" | "/" |
+Operator = { "+" | "-" | "*" | "/" |
     "==" | "!=" | "<" | "<=" | ">" | ">="
 }
 
-number = @{ ASCII_DIGIT+ }
+Number = @{ ASCII_DIGIT+ }
 
-boolean = @{ "true" | "false" }
+Boolean = @{ "true" | "false" }
 
-identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
