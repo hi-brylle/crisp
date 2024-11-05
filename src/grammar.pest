@@ -7,17 +7,25 @@ Statement = { Assignment }
 Assignment = { "let" ~ Identifier ~ "=" ~ Expression ~ ";" }
 
 Expression = { 
-    "(" ~ Operator ~ Expression ~ Expression ~ ")" |
-    // "(" ~ "-" ~ Expression ~ ")" |
-    (Number | Boolean)
+    UnaryExpression |
+    BinaryExpression |
+    IntegerLiteral |
+    BooleanLiteral
 }
 
-Operator = { "+" | "-" | "*" | "/" |
-    "==" | "!=" | "<" | "<=" | ">" | ">="
+UnaryExpression = { "(" ~ UnaryOperator ~ Expression ~ ")" }
+
+UnaryOperator = { "-" | "not" }
+
+BinaryExpression = { "(" ~ BinaryOperator ~ Expression ~ Expression ~ ")" }
+
+BinaryOperator = { "+" | "-" | "*" | "/" |
+    "==" | "!=" | "<" | "<=" | ">" | ">=" |
+    "or" | "and"
 }
 
-Number = @{ ASCII_DIGIT+ }
+IntegerLiteral = @{ ASCII_DIGIT+ }
 
-Boolean = @{ "true" | "false" }
+BooleanLiteral = @{ "true" | "false" }
 
 Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }

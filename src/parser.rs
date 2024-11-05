@@ -36,36 +36,46 @@ fn build_expr_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
     match pair.as_rule() {
         Rule::Expression => {
             let mut children = pair.into_inner();
-            match children.len() == 1 {
-                true => {
-                    build_expr_ast(children.next().unwrap())
-                }
-                false => {
-                    let operator = children.next().unwrap().as_str();
-                    let left = build_expr_ast(children.next().unwrap());
-                    let right = build_expr_ast(children.next().unwrap());
-        
-                    match operator {
-                        "+" => Expression::Add(Box::new(left), Box::new(right)),
-                        "-" => Expression::Sub(Box::new(left), Box::new(right)),
-                        "*" => Expression::Mul(Box::new(left), Box::new(right)),
-                        "/" => Expression::Div(Box::new(left), Box::new(right)),
-                        "==" => Expression::IsEq(Box::new(left), Box::new(right)),
-                        "!=" => Expression::NotEq(Box::new(left), Box::new(right)),
-                        "<" => Expression::Less(Box::new(left), Box::new(right)),
-                        "<=" => Expression::LessEq(Box::new(left), Box::new(right)),
-                        ">" => Expression::Greater(Box::new(left), Box::new(right)),
-                        ">=" => Expression::GreaterEq(Box::new(left), Box::new(right)),
-                        _ => unreachable!()
-                    }
-                }
+            build_expr_ast(children.next().unwrap())
+        }
+        Rule::UnaryExpression => {
+            let mut children = pair.into_inner();
+            let unary_op = children.next().unwrap().as_str();
+            let operand = build_expr_ast(children.next().unwrap());
+
+            match unary_op {
+                "-" => Expression::Negative(Box::new(operand)),
+                "not" => Expression::Not(Box::new(operand)),
+                _ => unreachable!("Some unary operator not reached.")
             }
         }
-        Rule::Number => {
+        Rule::BinaryExpression => {
+            let mut children = pair.into_inner();
+            let binary_op = children.next().unwrap().as_str();
+            let lhs = build_expr_ast(children.next().unwrap());
+            let rhs = build_expr_ast(children.next().unwrap());
+
+            match binary_op {
+                "+" => Expression::Add(Box::new(lhs), Box::new(rhs)),
+                "-" => Expression::Sub(Box::new(lhs), Box::new(rhs)),
+                "*" => Expression::Mul(Box::new(lhs), Box::new(rhs)),
+                "/" => Expression::Div(Box::new(lhs), Box::new(rhs)),
+                "==" => Expression::IsEq(Box::new(lhs), Box::new(rhs)),
+                "!=" => Expression::NotEq(Box::new(lhs), Box::new(rhs)),
+                "<" => Expression::Less(Box::new(lhs), Box::new(rhs)),
+                "<=" => Expression::LessEq(Box::new(lhs), Box::new(rhs)),
+                ">" => Expression::Greater(Box::new(lhs), Box::new(rhs)),
+                ">=" => Expression::GreaterEq(Box::new(lhs), Box::new(rhs)),
+                "or" => Expression::Or(Box::new(lhs), Box::new(rhs)),
+                "and" => Expression::And(Box::new(lhs), Box::new(rhs)),
+                _ => unreachable!("Some binary operator not reached.")
+            }
+        }
+        Rule::IntegerLiteral => {
             let number = pair.as_str().parse::<i64>().unwrap();
             Expression::Number(number)
         }
-        Rule::Boolean => {
+        Rule::BooleanLiteral => {
             match pair.as_str() {
                 "true" => Expression::Boolean(true),
                 "false" => Expression::Boolean(false),

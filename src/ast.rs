@@ -17,7 +17,7 @@ pub struct Assignment {
 #[derive(Debug)]
 pub enum Expression {
     Number(i64),
-    Boolean(bool),
+    Negative(Box<Expression>),
     Add(Box<Expression>, Box<Expression>),
     Sub(Box<Expression>, Box<Expression>),
     Mul(Box<Expression>, Box<Expression>),
@@ -27,5 +27,10 @@ pub enum Expression {
     Less(Box<Expression>, Box<Expression>),
     LessEq(Box<Expression>, Box<Expression>),
     Greater(Box<Expression>, Box<Expression>),
-    GreaterEq(Box<Expression>, Box<Expression>)
+    GreaterEq(Box<Expression>, Box<Expression>),
+
+    Boolean(bool),
+    Not(Box<Expression>),
+    Or(Box<Expression>, Box<Expression>),
+    And(Box<Expression>, Box<Expression>),
 }
