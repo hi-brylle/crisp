@@ -1,1 +1,1 @@
-let nice = < 1 false;
+let nice = (+ (* 1 2) 3);

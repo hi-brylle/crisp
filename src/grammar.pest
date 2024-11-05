@@ -6,7 +6,11 @@ Statement = { Assignment }
 
 Assignment = { "let" ~ Identifier ~ "=" ~ Expression ~ ";" }
 
-Expression = { Operator ~ Expression ~ Expression | (Number | Boolean) }
+Expression = { 
+    "(" ~ Operator ~ Expression ~ Expression ~ ")" |
+    // "(" ~ "-" ~ Expression ~ ")" |
+    (Number | Boolean)
+}
 
 Operator = { "+" | "-" | "*" | "/" |
     "==" | "!=" | "<" | "<=" | ">" | ">="
