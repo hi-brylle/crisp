@@ -22,7 +22,8 @@ BinaryExpression = { "(" ~ BinaryOperator ~ Expression ~ Expression ~ ")" }
 BinaryOperator = @{ "+" | "-" | "*" | "/" |
     "==" | "!=" |
     // 'or equal to' versions of relation operations must come first
-    // before their strict versions to avoid parsing errors
+    // before their strict versions to avoid parsing errors because this
+    // is a PEG, '|'s represent ordered choice, not alternation
     "<=" | "<" | ">=" | ">" |
     "or" | "and"
 }
