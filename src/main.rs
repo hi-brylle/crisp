@@ -19,8 +19,8 @@ fn main() {
     match parse_result {
         Ok(mut pairs) => {
             let root: pest::iterators::Pair<'_, Rule> = pairs.next().unwrap();
-            // println!("{:?}", root);
-            println!("{:?}", build_program_ast(root));
+            println!("{:?}", root);
+            // println!("{:?}", build_program_ast(root));
         },
         Err(e) => {
             eprintln!("Parsing error: {:?}", e);

@@ -1,6 +1,6 @@
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 
-Program = _{ SOI ~ Statement ~ EOI }
+Program = _{ SOI ~ Statement+ ~ EOI }
 
 Statement = { Assignment ~ ";" }
 
