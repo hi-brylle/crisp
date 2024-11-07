@@ -2,9 +2,9 @@ WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 
 Program = _{ SOI ~ Statement ~ EOI }
 
-Statement = { Assignment }
+Statement = { Assignment ~ ";" }
 
-Assignment = { "let" ~ Identifier ~ "=" ~ Expression ~ ";" }
+Assignment = { "let" ~ Identifier ~ "=" ~ Expression }
 
 Expression = { 
     UnaryExpression |
