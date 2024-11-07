@@ -68,17 +68,6 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             println!("\nExpression recursive call debug, children: {:?}\n", children);
             build_expression_ast(children.next().unwrap())
         }
-        Rule::UnaryExpression => {
-            // Always contains two items: the unary operator and its operand.
-            let mut children = pair.into_inner();
-            let unary_operator = children.next().unwrap().as_str();
-
-            match unary_operator {
-                "-" => Expression::Negative(Box::new(build_expression_ast(children.next().unwrap()))),
-                "not" => Expression::Not(Box::new(build_expression_ast(children.next().unwrap()))),
-                _ => unreachable!("Some unary operator has not been accounted for: {}", unary_operator)
-            }
-        }
         Rule::IntegerLiteral => {
             let integer = pair.as_str().parse::<i64>().unwrap();
             Expression::Number(integer)
@@ -89,6 +78,40 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
                 "false" => Expression::Boolean(false),
                 _ => unreachable!("There is no third boolean value!")
             } 
+        }
+        Rule::BinaryExpression => {
+            // Always contains three items: the binary operator and the lhs and rhs operands.
+            let mut children = pair.into_inner();
+            // println!("{}", children.len());
+            let binary_operator = children.next().unwrap().as_str();
+            
+            match binary_operator {
+                "+" => Expression::Plus(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "-" => Expression::Minus(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "*" => Expression::Times(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "/" => Expression::Divide(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "==" => Expression::IsEqual(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "!=" => Expression::NotEqual(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "<" => Expression::LessThan(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "<=" => Expression::LessThanOrEqual(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                ">" => Expression::GreaterThan(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                ">=" => Expression::GreaterThanOrEqual(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "or" => Expression::Or(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "and" => Expression::And(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                _ => unreachable!("Some binary operator has not been accounted for: {}", binary_operator)
+            }
+        }
+        Rule::UnaryExpression => {
+            // Always contains two items: the unary operator and its operand.
+            let mut children = pair.into_inner();
+            // println!("{}", children.len());
+            let unary_operator = children.next().unwrap().as_str();
+
+            match unary_operator {
+                "-" => Expression::Negative(Box::new(build_expression_ast(children.next().unwrap()))),
+                "not" => Expression::Not(Box::new(build_expression_ast(children.next().unwrap()))),
+                _ => unreachable!("Some unary operator has not been accounted for: {}", unary_operator)
+            }
         }
         _ => todo!("Add other expression types! (found {:?})", pair.as_rule())
     }
