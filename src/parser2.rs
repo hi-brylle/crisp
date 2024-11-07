@@ -31,7 +31,7 @@ pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
 fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
     debug_pair(&pair);
 
-    // Always contains one item, which is the type of the Statement.
+    // Always contains one item: the type of the Statement.
     let mut children = pair.into_inner();
     let only_child = children.next().unwrap();
     
@@ -65,7 +65,7 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
         Rule::Expression => {
             // IM NOT SURE ABOUT THIS, KEEP DEBUGGING
             let mut children = pair.into_inner();
-            println!("\nExpression recursive call debug, children: {:?}\n", children);
+            println!("\nExpression recursive call debug, children of length {}: {:?}\n", children.len(), children);
             build_expression_ast(children.next().unwrap())
         }
         Rule::IntegerLiteral => {
