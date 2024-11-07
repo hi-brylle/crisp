@@ -6,8 +6,10 @@ Statement = { Assignment ~ ";" }
 
 Assignment = { "let" ~ Identifier ~ "=" ~ Expression }
 
-Expression = { IntegerLiteral }
+Expression = { IntegerLiteral | BooleanLiteral }
 
 IntegerLiteral = @{ ASCII_DIGIT+ }
+
+BooleanLiteral = @{ "true" | "false" }
 
 Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }

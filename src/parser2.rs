@@ -72,6 +72,13 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             let integer = pair.as_str().parse::<i64>().unwrap();
             Expression::Number(integer)
         },
+        Rule::BooleanLiteral => {
+            match pair.as_str() {
+                "true" => Expression::Boolean(true),
+                "false" => Expression::Boolean(false),
+                _ => unreachable!("There is no third boolean value!")
+            } 
+        }
         _ => todo!("Add other expression types! (found {:?})", pair.as_rule())
     }
 }

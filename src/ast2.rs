@@ -16,5 +16,7 @@ pub struct Assignment {
 
 #[derive(Debug)]
 pub enum Expression {
-    Number(i64)
+    Number(i64),
+
+    Boolean(bool)
 }
