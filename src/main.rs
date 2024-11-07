@@ -17,16 +17,13 @@ fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
     
     let parse_result = GrammarParser::parse(Rule::Program, &src);
-    println!("{:?}\n", parse_result);
+    // println!("{:?}\n", parse_result);
 
     match parse_result {
         Ok(mut pairs) => {
-            // let root: pest::iterators::Pair<'_, Rule> = pairs.next().unwrap();
-            println!("{:?}\n", pairs.next().unwrap());
-            // println!("{:?}\n", pairs.next().unwrap());
-            // println!("{:?}\n", pairs.next().unwrap());
-            // println!("{:?}", root);
-            // println!("{:?}", build_program_ast(root));
+            let root = pairs.next().unwrap();
+            // println!("{:?}\n", root);
+            println!("{:?}", build_program_ast(root));
         },
         Err(e) => {
             eprintln!("Parsing error: {:?}", e);
