@@ -1,0 +1,13 @@
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+
+Program = { SOI ~ Statement+ ~ EOI }
+
+Statement = { Assignment ~ ";" }
+
+Assignment = { "let" ~ Identifier ~ "=" ~ Expression }
+
+Expression = { IntegerLiteral }
+
+IntegerLiteral = @{ ASCII_DIGIT+ }
+
+Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
