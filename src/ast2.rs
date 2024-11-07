@@ -17,6 +17,8 @@ pub struct Assignment {
 #[derive(Debug)]
 pub enum Expression {
     Number(i64),
+    Negative(Box<Expression>),
 
-    Boolean(bool)
+    Boolean(bool),
+    Not(Box<Expression>)
 }

@@ -6,7 +6,15 @@ Statement = { Assignment ~ ";" }
 
 Assignment = { "let" ~ Identifier ~ "=" ~ Expression }
 
-Expression = { IntegerLiteral | BooleanLiteral }
+Expression = { 
+    IntegerLiteral | 
+    BooleanLiteral |
+    UnaryExpression
+}
+
+UnaryExpression = { "(" ~ UnaryOperator ~ Expression ~ ")" }
+
+UnaryOperator = { "-" | "not" }
 
 IntegerLiteral = @{ ASCII_DIGIT+ }
 

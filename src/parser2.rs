@@ -68,6 +68,17 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             println!("\nExpression recursive call debug, children: {:?}\n", children);
             build_expression_ast(children.next().unwrap())
         }
+        Rule::UnaryExpression => {
+            // Always contains two items: the unary operator and its operand.
+            let mut children = pair.into_inner();
+            let unary_operator = children.next().unwrap().as_str();
+
+            match unary_operator {
+                "-" => Expression::Negative(Box::new(build_expression_ast(children.next().unwrap()))),
+                "not" => Expression::Not(Box::new(build_expression_ast(children.next().unwrap()))),
+                _ => unreachable!("Some unary operator has not been accounted for: {}", unary_operator)
+            }
+        }
         Rule::IntegerLiteral => {
             let integer = pair.as_str().parse::<i64>().unwrap();
             Expression::Number(integer)
