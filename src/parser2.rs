@@ -16,7 +16,7 @@ pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
                     Rule::Statement => {
                         statements.push(build_statement_ast(c));
                     },
-                    _ => {}
+                    _ => unreachable!("Unexpected Program node child! (found {:?})", c.as_rule())
                 }
             }
         },
@@ -39,7 +39,7 @@ fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
         Rule::Assignment => { 
             Statement::AssignmentStmt(build_assignment_ast(only_child))
         },
-        _ => todo!("Handle other Statement types!")
+        _ => todo!("Handle other Statement types! (found {:?})", only_child.as_rule())
     } 
 }
 
