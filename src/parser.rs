@@ -1,6 +1,6 @@
 use crate::{ast::*, Rule};
 
-pub fn build_ast(pair: pest::iterators::Pair<Rule>) -> Program {
+pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
     debug_pair(&pair);
 
     match pair.as_rule() {

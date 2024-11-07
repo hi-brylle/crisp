@@ -1,6 +1,6 @@
 use std::fs::*;
 use std::env::*;
-use parser::build_ast;
+use parser::build_program_ast;
 use pest::Parser;
 use pest_derive::Parser;
 
@@ -20,7 +20,7 @@ fn main() {
         Ok(mut pairs) => {
             let root: pest::iterators::Pair<'_, Rule> = pairs.next().unwrap();
             // println!("{:?}", root);
-            println!("{:?}", build_ast(root));
+            println!("{:?}", build_program_ast(root));
         },
         Err(e) => {
             eprintln!("Parsing error: {:?}", e);
