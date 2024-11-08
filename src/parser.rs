@@ -46,15 +46,38 @@ fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
 fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
     debug_pair(&pair);
 
-    // Always contains two items: the identifier and the rhs.
+    // Contains possibly three items: the identifier, an optional type, and the rhs.
     let mut children = pair.into_inner();
-    
-    let identifier = children.next().unwrap().as_str().to_owned();
-    let rhs = build_expression_ast(children.next().unwrap());
 
-    Assignment {
-        identifier,
-        rhs,
+    match children.len() {
+        2 => {
+            let identifier = children.next().unwrap().as_str().to_owned();
+            let rhs = build_expression_ast(children.next().unwrap());
+        
+            Assignment {
+                identifier,
+                type_string: TypeString::Unspecified,
+                rhs,
+            }   
+        },
+        3 => {
+            let identifier = children.next().unwrap().as_str().to_owned();
+            let type_string_raw = children.next().unwrap().as_str();
+            let rhs = build_expression_ast(children.next().unwrap());
+        
+            let type_string: TypeString = match type_string_raw {
+                "Number" => TypeString::Number,
+                "Boolean" => TypeString::Boolean,
+                _ => todo!("Some type string has not been accounted for: {}", type_string_raw)
+            };
+
+            Assignment {
+                identifier,
+                type_string,
+                rhs,
+            }            
+        }
+        _ => todo!("Some Assignment AST builder children have not been accounted for! Unexpected children size: {}", children.len())
     }
 }
 

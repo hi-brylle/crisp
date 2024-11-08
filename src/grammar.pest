@@ -4,7 +4,7 @@ Program = { SOI ~ Statement+ ~ EOI }
 
 Statement = { Assignment ~ ";" }
 
-Assignment = { "let" ~ Identifier ~ "=" ~ Expression }
+Assignment = { "let" ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
 
 Expression = { 
     IntegerLiteral | 
@@ -35,3 +35,5 @@ IntegerLiteral = @{ ASCII_DIGIT+ }
 BooleanLiteral = @{ "true" | "false" }
 
 Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+
+Type = @{ "Number" | "Boolean" }

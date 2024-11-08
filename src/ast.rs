@@ -11,7 +11,15 @@ pub enum Statement {
 #[derive(Debug)]
 pub struct Assignment {
     pub identifier: String,
+    pub type_string: TypeString,
     pub rhs: Expression
+}
+
+#[derive(Debug)]
+pub enum TypeString {
+    Unspecified, // This is subject to type inference later.
+    Number,
+    Boolean
 }
 
 #[derive(Debug)]
