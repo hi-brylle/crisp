@@ -7,27 +7,28 @@ Statement = { Assignment ~ ";" }
 Assignment = { "let" ~ Identifier ~ "=" ~ Expression }
 
 Expression = { 
-    UnaryExpression |
+    IntegerLiteral | 
+    BooleanLiteral |
     BinaryExpression |
-    IntegerLiteral |
-    BooleanLiteral
+    UnaryExpression
+}
+
+BinaryExpression = { "(" ~ BinaryOperator ~ Expression ~ Expression ~ ")" }
+
+BinaryOperator = @{
+    "+" | "-" | "*" | "/" |
+    "==" | "!=" |
+    // 'or equal to' versions of relation operations must come first
+    // before their strict versions to avoid parsing errors because PEGs
+    // stop on the first match they found, so always put the longer versions
+    // first before the shorter ones.
+    "<=" | "<" | ">=" | ">" |
+    "or" | "and"
 }
 
 UnaryExpression = { "(" ~ UnaryOperator ~ Expression ~ ")" }
 
 UnaryOperator = { "-" | "not" }
-
-BinaryExpression = { "(" ~ BinaryOperator ~ Expression ~ Expression ~ ")" }
-
-BinaryOperator = @{ "+" | "-" | "*" | "/" |
-    "==" | "!=" |
-    // 'or equal to' versions of relation operations must come first
-    // before their strict versions to avoid parsing errors because PEGs
-    // stop on the first match they found, so always put the longer version
-    // at the start.
-    "<=" | "<" | ">=" | ">" |
-    "or" | "and"
-}
 
 IntegerLiteral = @{ ASCII_DIGIT+ }
 
