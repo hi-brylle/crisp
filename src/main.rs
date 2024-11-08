@@ -19,7 +19,7 @@ fn main() {
     match parse_result {
         Ok(mut pairs) => {
             let root = pairs.next().unwrap();
-            println!("{:?}", build_program_ast(root));
+            println!("\n{:?}\n", build_program_ast(root));
         },
         Err(e) => {
             eprintln!("Parsing error: {:?}", e);
