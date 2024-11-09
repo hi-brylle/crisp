@@ -1,2 +1,2 @@
 let a = true;
-let b: Boolean = false;
+let b = (and true a);

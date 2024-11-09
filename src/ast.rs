@@ -41,4 +41,6 @@ pub enum Expression {
     Not(Box<Expression>),
     Or(Box<Expression>, Box<Expression>),
     And(Box<Expression>, Box<Expression>),
+
+    Identifier(String)
 }
