@@ -1,1 +1,1 @@
-let c = function(1 (+ 1 2));
+let c = (function);
