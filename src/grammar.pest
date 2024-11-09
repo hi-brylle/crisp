@@ -9,6 +9,8 @@ Assignment = { "let" ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
 Expression = { 
     IntegerLiteral | 
     BooleanLiteral | 
+    // Write function calls before identifiers so the arguments get matched.
+    FunctionCall |
     Identifier |
     BinaryExpression |
     UnaryExpression
@@ -30,6 +32,8 @@ BinaryOperator = @{
 UnaryExpression = { "(" ~ UnaryOperator ~ Expression ~ ")" }
 
 UnaryOperator = { "-" | "not" }
+
+FunctionCall = @{ Identifier ~ "()" }
 
 IntegerLiteral = @{ ASCII_DIGIT+ }
 

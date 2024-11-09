@@ -99,6 +99,10 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             let identifier = pair.as_str().parse::<String>().unwrap();
             Expression::Identifier(identifier)
         }
+        Rule::FunctionCall => {
+            let function_name = pair.as_str().parse::<String>().unwrap();
+            Expression::FunctionCall(function_name)
+        }
         Rule::BooleanLiteral => {
             match pair.as_str() {
                 "true" => Expression::Boolean(true),
