@@ -44,5 +44,11 @@ pub enum Expression {
 
     Identifier(String),
 
-    FunctionCall(String)
+    FunctionCall(FunctionCall)
+}
+
+#[derive(Debug)]
+pub struct FunctionCall {
+    pub function_name: String,
+    pub function_arguments: Vec<Expression>
 }

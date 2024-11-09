@@ -33,7 +33,7 @@ UnaryExpression = { "(" ~ UnaryOperator ~ Expression ~ ")" }
 
 UnaryOperator = { "-" | "not" }
 
-FunctionCall = @{ Identifier ~ "()" }
+FunctionCall = { Identifier ~ "(" ~ Expression* ~ ")" }
 
 IntegerLiteral = @{ ASCII_DIGIT+ }
 

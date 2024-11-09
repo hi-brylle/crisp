@@ -100,8 +100,22 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             Expression::Identifier(identifier)
         }
         Rule::FunctionCall => {
-            let function_name = pair.as_str().parse::<String>().unwrap();
-            Expression::FunctionCall(function_name)
+            let mut children = pair.into_inner();
+            println!("\nFunction call debug, children of length {}: {:?}\n", children.len(), children);
+
+            let function_name = children.next().unwrap().as_str().parse::<String>().unwrap();
+            let mut function_arguments: Vec<Expression> = vec![];
+
+            for c in children {
+                match c.as_rule() {
+                    Rule::Expression => {
+                        function_arguments.push(build_expression_ast(c));                        
+                    },
+                    _ => unreachable!("Function call included an argument that isn't an Expression! (found {:?})", c.as_rule())
+                }
+            }
+            
+            Expression::FunctionCall(FunctionCall { function_name, function_arguments })
         }
         Rule::BooleanLiteral => {
             match pair.as_str() {
