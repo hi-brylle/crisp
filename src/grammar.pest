@@ -4,7 +4,7 @@ Program = { SOI ~ Statement+ ~ EOI }
 
 Statement = { Assignment ~ ";" }
 
-Assignment = { "let " ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
+Assignment = { ("let " | "let\n") ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
 
 Expression = { 
     FunctionCall |
