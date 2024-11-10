@@ -19,7 +19,8 @@ pub struct Assignment {
 pub enum TypeString {
     Unspecified, // This is subject to type inference later.
     Number,
-    Boolean
+    Boolean,
+    String
 }
 
 #[derive(Debug)]
@@ -46,7 +47,9 @@ pub enum Expression {
 
     FunctionCall(FunctionCall),
 
-    IfElseExpression(IfElseExpression)
+    IfElseExpression(IfElseExpression),
+
+    StringLiteral(String)
 }
 
 #[derive(Debug)]

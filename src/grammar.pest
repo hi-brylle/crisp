@@ -11,13 +11,13 @@ Expression = {
     IfElseExpression |
     IntegerLiteral | 
     BooleanLiteral | 
+    StringLiteral |
     Identifier |
     BinaryExpression |
     UnaryExpression
 }
 
 BinaryExpression = { "(" ~ BinaryOperator ~ Expression ~ Expression ~ ")" }
-
 BinaryOperator = @{
     "+" | "-" | "*" | "/" |
     "==" | "!=" |
@@ -30,7 +30,6 @@ BinaryOperator = @{
 }
 
 UnaryExpression = { "(" ~ UnaryOperator ~ Expression ~ ")" }
-
 UnaryOperator = { "-" | "!" }
 
 FunctionCall = { "(" ~ Identifier ~ Expression* ~ ")" }
@@ -44,6 +43,14 @@ IntegerLiteral = @{ ASCII_DIGIT+ }
 
 BooleanLiteral = @{ "true" | "false" }
 
+StringLiteral = ${ "\"" ~ StringBody ~ "\"" }
+StringBody = @{ Char* }
+Char = {
+    !("\"" | "\\") ~ ANY |
+    "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t") |
+    "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+
 Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 
-Type = @{ "Number" | "Boolean" }
+Type = @{ "Number" | "Boolean" | "String" }

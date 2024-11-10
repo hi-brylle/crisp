@@ -68,6 +68,7 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
             let type_string: TypeString = match type_string_raw {
                 "Number" => TypeString::Number,
                 "Boolean" => TypeString::Boolean,
+                "String" => TypeString::String,
                 _ => todo!("Some type string has not been accounted for: {}", type_string_raw)
             };
 
@@ -136,6 +137,10 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
                 "false" => Expression::Boolean(false),
                 _ => unreachable!("There is no third boolean value!")
             } 
+        }
+        Rule::StringLiteral => {
+            let mut children = pair.into_inner();
+            Expression::StringLiteral(children.next().unwrap().as_str().parse::<String>().unwrap())
         }
         Rule::BinaryExpression => {
             // Always contains three items: the binary operator and the lhs and rhs operands.
