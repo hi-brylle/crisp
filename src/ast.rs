@@ -44,11 +44,20 @@ pub enum Expression {
 
     Identifier(String),
 
-    FunctionCall(FunctionCall)
+    FunctionCall(FunctionCall),
+
+    IfElseExpression(IfElseExpression)
 }
 
 #[derive(Debug)]
 pub struct FunctionCall {
     pub function_name: String,
     pub function_arguments: Vec<Expression>
+}
+
+#[derive(Debug)]
+pub struct IfElseExpression {
+    pub predicate: Box<Expression>,
+    pub true_branch: Box<Expression>,
+    pub false_branch: Box<Expression>,
 }

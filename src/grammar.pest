@@ -8,6 +8,7 @@ Assignment = { "let" ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
 
 Expression = { 
     FunctionCall |
+    IfElseExpression |
     IntegerLiteral | 
     BooleanLiteral | 
     Identifier |
@@ -33,6 +34,11 @@ UnaryExpression = { "(" ~ UnaryOperator ~ Expression ~ ")" }
 UnaryOperator = { "-" | "!" }
 
 FunctionCall = { "(" ~ Identifier ~ Expression* ~ ")" }
+
+IfElseExpression = { "if" ~ Expression ~ 
+    "{" ~ Expression ~ "}" ~ 
+    "else" ~ "{" ~ Expression ~ "}"
+}
 
 IntegerLiteral = @{ ASCII_DIGIT+ }
 

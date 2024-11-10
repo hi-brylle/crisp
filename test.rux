@@ -1,1 +1,1 @@
-let c = (function (|| true false) (! false) (&& true false));
+let c = if (< 1 2) { 1 } else { 2 };

@@ -117,6 +117,19 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             
             Expression::FunctionCall(FunctionCall { function_name, function_arguments })
         }
+        Rule::IfElseExpression => {
+            let mut children = pair.into_inner();
+
+            let predicate = build_expression_ast(children.next().unwrap());
+            let true_branch = build_expression_ast(children.next().unwrap());
+            let false_branch = build_expression_ast(children.next().unwrap());
+            
+            Expression::IfElseExpression(IfElseExpression { 
+                predicate: Box::new(predicate),
+                true_branch: Box::new(true_branch),
+                false_branch: Box::new(false_branch)
+            })
+        }
         Rule::BooleanLiteral => {
             match pair.as_str() {
                 "true" => Expression::Boolean(true),
