@@ -141,8 +141,8 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
                 "<=" => Expression::LessThanOrEqual(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
                 ">" => Expression::GreaterThan(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
                 ">=" => Expression::GreaterThanOrEqual(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
-                "or" => Expression::Or(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
-                "and" => Expression::And(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "||" => Expression::Or(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
+                "&&" => Expression::And(Box::new(build_expression_ast(children.next().unwrap())), Box::new(build_expression_ast(children.next().unwrap()))),
                 _ => unreachable!("Some binary operator has not been accounted for: {}", binary_operator)
             }
         }
@@ -154,7 +154,7 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
 
             match unary_operator {
                 "-" => Expression::Negative(Box::new(build_expression_ast(children.next().unwrap()))),
-                "not" => Expression::Not(Box::new(build_expression_ast(children.next().unwrap()))),
+                "!" => Expression::Not(Box::new(build_expression_ast(children.next().unwrap()))),
                 _ => unreachable!("Some unary operator has not been accounted for: {}", unary_operator)
             }
         }

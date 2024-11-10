@@ -25,12 +25,12 @@ BinaryOperator = @{
     // stop on the first match they found, so always put the longer versions
     // first before the shorter ones.
     "<=" | "<" | ">=" | ">" |
-    "or" | "and"
+    "||" | "&&"
 }
 
 UnaryExpression = { "(" ~ UnaryOperator ~ Expression ~ ")" }
 
-UnaryOperator = { "-" | "not" }
+UnaryOperator = { "-" | "!" }
 
 FunctionCall = { "(" ~ Identifier ~ Expression* ~ ")" }
 

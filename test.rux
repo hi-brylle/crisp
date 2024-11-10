@@ -1,1 +1,1 @@
-let c = (function);
+let c = (function (|| true false) (! false) (&& true false));
