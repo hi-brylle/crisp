@@ -1,4 +1,4 @@
-fun add(a: String, b: String) {
+fun add() {
     let a = "ay";
     let b = "boy";
     return true

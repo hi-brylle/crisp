@@ -13,7 +13,7 @@ FunctionDefinition = { ("fun " | "fun\t" | "fun\n") ~ Identifier ~
     // "{" ~ "}"
 }
 
-FunctionParameters = { (Identifier ~ ":" ~ Type) ~ ("," ~ Identifier ~ ":" ~ Type)* ~ ","? }
+FunctionParameters = { ((Identifier ~ ":" ~ Type) ~ ("," ~ Identifier ~ ":" ~ Type)* ~ ","?)* }
 FunctionBody = { Statement* ~ (("return " | "return\t" | "return\n") ~  Expression)? }
 
 Expression = { 
