@@ -1,1 +1,4 @@
-let c: String = if  true{ 42 }else{ 69 };
+fun add(a: String,) {
+    return true
+    
+};

@@ -2,9 +2,19 @@ WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 
 Program = { SOI ~ Statement+ ~ EOI }
 
-Statement = { Assignment ~ ";" }
+Statement = { (Assignment | FunctionDefinition) ~ ";" }
 
 Assignment = { ("let " | "let\t" | "let\n") ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
+
+FunctionDefinition = { ("fun " | "fun\t" | "fun\n") ~ Identifier ~
+    "(" ~ FunctionParameters ~ ")" ~
+    "{" ~ FunctionBody ~ "}"
+    // "(" ~ ")" ~
+    // "{" ~ "}"
+}
+
+FunctionParameters = { (Identifier ~ ":" ~ Type) ~ ("," ~ Identifier ~ ":" ~ Type)* ~ ","? }
+FunctionBody = { Statement* ~ (("return " | "return\t" | "return\n") ~  Expression)? }
 
 Expression = { 
     FunctionCall |
