@@ -4,7 +4,7 @@ Program = { SOI ~ Statement+ ~ EOI }
 
 Statement = { Assignment ~ ";" }
 
-Assignment = { ("let " | "let\n") ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
+Assignment = { ("let " | "let\t" | "let\n") ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
 
 Expression = { 
     FunctionCall |
@@ -34,7 +34,7 @@ UnaryOperator = { "-" | "!" }
 
 FunctionCall = { "(" ~ Identifier ~ Expression* ~ ")" }
 
-IfElseExpression = { "if" ~ Expression ~ 
+IfElseExpression = { ("if" | "if\t" | "if\n") ~ Expression ~ 
     "{" ~ Expression ~ "}" ~ 
     "else" ~ "{" ~ Expression ~ "}"
 }

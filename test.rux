@@ -1,1 +1,1 @@
-let c: String = "hey";
+let c: String = if  true{ 42 }else{ 69 };
