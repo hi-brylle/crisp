@@ -5,7 +5,8 @@ pub struct Program {
 
 #[derive(Debug)]
 pub enum Statement {
-    AssignmentStmt(Assignment)
+    AssignmentStmt(Assignment),
+    FunctionDefStmt(FunctionDefinitionStatement)
 }
 
 #[derive(Debug)]
@@ -13,6 +14,13 @@ pub struct Assignment {
     pub identifier: String,
     pub type_string: TypeString,
     pub rhs: Expression
+}
+
+#[derive(Debug)]
+pub struct FunctionDefinitionStatement {
+    pub function_name: String,
+    pub function_parameters: Vec<(String, TypeString)>,
+    pub statements: Vec<Statement>
 }
 
 #[derive(Debug)]
