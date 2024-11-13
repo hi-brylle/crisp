@@ -2,3 +2,5 @@ fun add(a: Number, b: Number) {
     let sum = (+ a b);
     return sum
 };
+
+let sum_boi = (add 420 69);
