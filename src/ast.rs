@@ -20,7 +20,14 @@ pub struct Assignment {
 pub struct FunctionDefinitionStatement {
     pub function_name: String,
     pub function_parameters: Vec<(String, TypeString)>,
-    pub statements: Vec<Statement>
+    pub function_body: FunctionBody
+    
+}
+
+#[derive(Debug)]
+pub struct FunctionBody {
+    pub statements: Vec<Statement>,
+    pub return_expression: Option<Expression>
 }
 
 #[derive(Debug)]
