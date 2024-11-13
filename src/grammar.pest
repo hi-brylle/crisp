@@ -32,7 +32,7 @@ BinaryOperator = @{
     "==" | "!=" |
     // 'or equal to' versions of relation operations must come first
     // before their strict versions to avoid parsing errors because PEGs
-    // stop on the first match they found, so always put the longer versions
+    // stop on the first match they find, so always put the longer versions
     // first before the shorter ones.
     "<=" | "<" | ">=" | ">" |
     "||" | "&&"
