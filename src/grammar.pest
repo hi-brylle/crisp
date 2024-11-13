@@ -9,8 +9,6 @@ Assignment = { ("let " | "let\t" | "let\n") ~ Identifier ~ (":" ~ Type)? ~ "=" ~
 FunctionDefinition = { ("fun " | "fun\t" | "fun\n") ~ Identifier ~
     "(" ~ FunctionParameters ~ ")" ~
     "{" ~ FunctionBody ~ "}"
-    // "(" ~ ")" ~
-    // "{" ~ "}"
 }
 
 FunctionParameters = { (FunctionParameter ~ ("," ~ FunctionParameter)* ~ ","?)* }
