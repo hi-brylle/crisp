@@ -68,12 +68,7 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
             let type_string_raw = children.next().unwrap().as_str();
             let rhs = build_expression_ast(children.next().unwrap());
         
-            let type_string: TypeString = match type_string_raw {
-                "Number" => TypeString::Number,
-                "Boolean" => TypeString::Boolean,
-                "String" => TypeString::String,
-                _ => todo!("Some type string has not been accounted for: {}", type_string_raw)
-            };
+            let type_string: TypeString = parse_raw_type_string(type_string_raw);
 
             Assignment {
                 identifier,
@@ -126,12 +121,7 @@ fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, 
                             let param_name = params_parts.next().unwrap().as_str().parse::<String>().unwrap();
                             let param_type_raw = params_parts.next().unwrap().as_str();
 
-                            let param_type = match param_type_raw {
-                                "Number" => TypeString::Number,
-                                "Boolean" => TypeString::Boolean,
-                                "String" => TypeString::String,
-                                _ => todo!("Some type has not been accounted for: {}", param_type_raw)
-                            };
+                            let param_type = parse_raw_type_string(param_type_raw);
                             
                             function_parameters.push((param_name, param_type));
                         },
@@ -288,4 +278,13 @@ fn debug_pair(pair: &pest::iterators::Pair<Rule>) {
         println!("CHILD: {:?}\n", c)
     }
     println!("=========");
+}
+
+fn parse_raw_type_string(type_string: &str) -> TypeString {
+    match type_string {
+        "Number" => TypeString::Number,
+        "Boolean" => TypeString::Boolean,
+        "String" => TypeString::String,
+        _ => todo!("Some type string has not been accounted for: {}", type_string)
+    }
 }
