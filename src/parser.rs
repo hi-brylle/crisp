@@ -93,17 +93,19 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
     let mut children = pair.into_inner();
     println!("\nFunction def debug, children of length {}: {:?}\n", children.len(), children);
 
-    let mut function_parameters: Vec<(String, TypeString)> = vec![];
-
     let function_name = children.next().unwrap().as_str().parse::<String>().unwrap();
-    println!("Function name: {}", function_name);
 
+    let mut function_parameters: Vec<(String, TypeString)> = vec![];
     let function_parameters_raw = children.next().unwrap();
-    println!("Function params raw: {:?}", function_parameters_raw);
     function_parameters.append(&mut build_function_params_ast(function_parameters_raw));
-    println!("Function params: {:?}", function_parameters);
 
-    todo!()
+    let mut function_body: FunctionBody = build_function_body_ast(children.next().unwrap());
+
+    FunctionDefinitionStatement {
+        function_name,
+        function_parameters,
+        function_body,
+    }
 }
 
 fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, TypeString)> {
@@ -141,6 +143,44 @@ fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, 
             }
         },
         _ => unreachable!("Expecting FunctionParameters here! (found {:?})", pair.as_rule())
+    }
+}
+
+fn build_function_body_ast(pair: pest::iterators::Pair<Rule>) -> FunctionBody {
+    match pair.as_rule() {
+        Rule::FunctionBody => {
+            // Contains zero or more statements and an optional return expression. 
+            let mut children = pair.into_inner();
+            println!("\nFunction body debug, children of length {}: {:?}\n", children.len(), children);
+
+            if children.len() == 0 {
+                FunctionBody {
+                    statements: vec![],
+                    return_expression: None,
+                }
+            } else {
+                let mut statements: Vec<Statement> = vec![];
+                let mut return_expression: Option<Expression> = None;
+
+                for c in children {
+                    match c.as_rule() {
+                        Rule::Statement => {
+                            statements.push(build_statement_ast(c));
+                        },
+                        Rule::Expression => {
+                            return_expression = Some(build_expression_ast(c))
+                        },
+                        _ => unreachable!("Expecting Statement or Expression only! (found {:?})", c.as_rule())
+                    }
+                }
+                
+                FunctionBody {
+                    statements,
+                    return_expression,
+                }
+            }
+        }
+        _ => unreachable!("Expecting FunctionBody here! (found {:?})", pair.as_rule())
     }
 }
 

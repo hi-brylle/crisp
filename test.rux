@@ -1,3 +1,5 @@
 fun add(a: Number, b: Number) {
-    
+    let c = true;
+    let d = false;
+    return 42
 };

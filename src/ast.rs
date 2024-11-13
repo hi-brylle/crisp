@@ -21,7 +21,6 @@ pub struct FunctionDefinitionStatement {
     pub function_name: String,
     pub function_parameters: Vec<(String, TypeString)>,
     pub function_body: FunctionBody
-    
 }
 
 #[derive(Debug)]
