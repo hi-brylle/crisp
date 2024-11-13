@@ -88,8 +88,60 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
 fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefinitionStatement {
     debug_pair(&pair);
 
+    // Always contains three items (even though some may actually be empty):
+    // the non-empty function name, parameters, and body.
     let mut children = pair.into_inner();
+    println!("\nFunction def debug, children of length {}: {:?}\n", children.len(), children);
+
+    let mut function_parameters: Vec<(String, TypeString)> = vec![];
+
+    let function_name = children.next().unwrap().as_str().parse::<String>().unwrap();
+    println!("Function name: {}", function_name);
+
+    let function_parameters_raw = children.next().unwrap();
+    println!("Function params raw: {:?}", function_parameters_raw);
+    function_parameters.append(&mut build_function_params_ast(function_parameters_raw));
+    println!("Function params: {:?}", function_parameters);
+
     todo!()
+}
+
+fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, TypeString)> {
+    match pair.as_rule() {
+        Rule::FunctionParameters => {
+            let mut children = pair.into_inner();
+            println!("\nFunction params debug, children of length {}: {:?}\n", children.len(), children);
+
+            if children.len() == 0 {
+                vec![]
+            } else {  
+                let mut function_parameters: Vec<(String, TypeString)> = vec![];  
+
+                for c in children {
+                    match c.as_rule() {
+                        Rule::FunctionParameter => {
+                            let mut params_parts = c.into_inner();
+                            let param_name = params_parts.next().unwrap().as_str().parse::<String>().unwrap();
+                            let param_type_raw = params_parts.next().unwrap().as_str();
+
+                            let param_type = match param_type_raw {
+                                "Number" => TypeString::Number,
+                                "Boolean" => TypeString::Boolean,
+                                "String" => TypeString::String,
+                                _ => todo!("Some type has not been accounted for: {}", param_type_raw)
+                            };
+                            
+                            function_parameters.push((param_name, param_type));
+                        },
+                        _ => unreachable!("Expecting FunctionParameter here! (found {:?})", c.as_rule())
+                    }
+                }
+                
+                function_parameters
+            }
+        },
+        _ => unreachable!("Expecting FunctionParameters here! (found {:?})", pair.as_rule())
+    }
 }
 
 fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
