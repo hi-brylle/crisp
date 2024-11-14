@@ -83,8 +83,9 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
 fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefinitionStatement {
     debug_pair(&pair);
 
-    // Always contains three items (even though some may actually be empty):
-    // the non-empty function name, parameters, and body.
+    // Always contains fourthree items (even though some may actually be empty):
+    // a non-empty function name, parameters,
+    // a mandatory return type annotation, and body.
     let mut children = pair.into_inner();
     println!("\nFunction def debug, children of length {}: {:?}\n", children.len(), children);
 
@@ -94,11 +95,15 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
     let function_parameters_raw = children.next().unwrap();
     function_parameters.append(&mut build_function_params_ast(function_parameters_raw));
 
+    let return_type_raw = children.next().unwrap().as_str();
+    let function_return_type = parse_raw_type_string(return_type_raw);
+
     let mut function_body: FunctionBody = build_function_body_ast(children.next().unwrap());
 
     FunctionDefinitionStatement {
         function_name,
         function_parameters,
+        function_return_type,
         function_body,
     }
 }
@@ -285,6 +290,7 @@ fn parse_raw_type_string(type_string: &str) -> TypeString {
         "Number" => TypeString::Number,
         "Boolean" => TypeString::Boolean,
         "String" => TypeString::String,
+        "Unit" => TypeString::Unit,
         _ => todo!("Some type string has not been accounted for: {}", type_string)
     }
 }

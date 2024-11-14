@@ -20,6 +20,7 @@ pub struct Assignment {
 pub struct FunctionDefinitionStatement {
     pub function_name: String,
     pub function_parameters: Vec<(String, TypeString)>,
+    pub function_return_type: TypeString,
     pub function_body: FunctionBody
 }
 
@@ -34,7 +35,8 @@ pub enum TypeString {
     Unspecified, // This is subject to type inference later.
     Number,
     Boolean,
-    String
+    String,
+    Unit
 }
 
 #[derive(Debug)]
