@@ -8,6 +8,7 @@ Assignment = { ("let " | "let\t" | "let\n") ~ Identifier ~ (":" ~ Type)? ~ "=" ~
 
 FunctionDefinition = { ("fun " | "fun\t" | "fun\n") ~ Identifier ~
     "(" ~ FunctionParameters ~ ")" ~
+    ":" ~ Type ~
     "{" ~ FunctionBody ~ "}"
 }
 
@@ -62,4 +63,4 @@ Char = {
 
 Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 
-Type = @{ "Number" | "Boolean" | "String" }
+Type = @{ "Number" | "Boolean" | "String"| "Unit" }
