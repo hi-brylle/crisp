@@ -63,4 +63,4 @@ Char = {
 
 Identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 
-Type = @{ "Number" | "Boolean" | "String"| "Unit" }
+Type = @{ "Number" | "Boolean" | "String" | "Unit" }
