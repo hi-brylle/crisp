@@ -44,9 +44,9 @@ UnaryOperator = { "-" | "!" }
 
 FunctionCall = { "(" ~ Identifier ~ Expression* ~ ")" }
 
-IfElseExpression = { ("if" | "if\t" | "if\n") ~ Expression ~ 
+IfElseExpression = { ("if " | "if\t" | "if\n" | "if") ~ Expression ~ 
     "{" ~ Expression ~ "}" ~ 
-    "else" ~ "{" ~ Expression ~ "}"
+    ("else " | "else\t" | "else\n" | "else") ~ "{" ~ Expression ~ "}"
 }
 
 IntegerLiteral = @{ ASCII_DIGIT+ }

@@ -1,6 +1,8 @@
-fun add(a: Number, b: Number): Number {
-    let sum = (+ a b);
-    return sum
+fun comp(a: Number, b: Number): Number {
+    let res = if (< a b) {
+        "a is less than b"
+    } else {
+        "a is greater than b"
+    };
+    return res
 };
-
-let sum_boi = (add 420 69);
