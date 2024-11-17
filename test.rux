@@ -1,8 +1,9 @@
-fun comp(a: Number, b: Number): Number {
-    let res = if (< a b) {
+let comp =
+    if (< a b) {
         "a is less than b"
-    } else {
+    } else
+    if (> a b) {
         "a is greater than b"
+    } else {
+        "a and b are equal"
     };
-    return res
-};

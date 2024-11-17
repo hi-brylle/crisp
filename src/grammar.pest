@@ -46,7 +46,10 @@ FunctionCall = { "(" ~ Identifier ~ Expression* ~ ")" }
 
 IfElseExpression = { ("if " | "if\t" | "if\n" | "if") ~ Expression ~ 
     "{" ~ Expression ~ "}" ~ 
-    ("else " | "else\t" | "else\n" | "else") ~ "{" ~ Expression ~ "}"
+    (
+        (("else " | "else\t" | "else\n" | "else") ~ IfElseExpression) |
+        ("else" ~ "{" ~ Expression ~ "}")
+    )
 }
 
 IntegerLiteral = @{ ASCII_DIGIT+ }
