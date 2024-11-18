@@ -1,3 +1,5 @@
+let a = 42;
+let b = 69;
 let comp =
     if (< a b) {
         "a is less than b"
