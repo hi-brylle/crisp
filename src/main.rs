@@ -2,6 +2,7 @@ use std::fs::*;
 use std::env::*;
 use parser::build_program_ast;
 use pest::Parser;
+use pest::error::Error;
 use pest_derive::Parser;
 
 #[derive(Parser)]
@@ -14,15 +15,24 @@ mod parser;
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
 
-    let parse_result = GrammarParser::parse(Rule::Program, &src);
+    match parse_source(src) {
+        Ok(program_ast) => {
+            println!("\nParse success AST:\n{:?}\n", program_ast)
+        },
+        Err(e) => { 
+            eprintln!("Parse error: {:?}", e);
+        },
+    }
+}
+
+fn parse_source(source: String) -> Result<ast::Program, Error<Rule>> {
+    let parse_result = GrammarParser::parse(Rule::Program, &source);
 
     match parse_result {
         Ok(mut pairs) => {
             let root = pairs.next().unwrap();
-            println!("\n{:?}\n", build_program_ast(root));
+            Ok(build_program_ast(root))
         },
-        Err(e) => {
-            eprintln!("Parsing error: {:?}", e);
-        },
+        Err(e) => { Err(e) },
     }
 }
