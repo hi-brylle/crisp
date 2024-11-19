@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::ast::{FunctionDefinitionStatement, Program, Statement::*};
+use SymbolKind::*;
 
 #[derive(Debug)]
 pub struct Scope {
@@ -33,13 +34,13 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
             AssignmentStmt(assignment) => {
                 symbol_table.push(Symbol {
                     symbol: assignment.identifier.to_owned(),
-                    kind: SymbolKind::Variable,
+                    kind: Variable,
                 });
             },
             FunctionDefStmt(function_definition_statement) => {
                 symbol_table.push(Symbol {
                     symbol: function_definition_statement.function_name.to_owned(),
-                    kind: SymbolKind::Function,
+                    kind: Function,
                 });
                 children_scopes.push(build_function_scope(&function_definition_statement));
             },
@@ -63,7 +64,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
     for (parameter, _) in parameters {
         symbol_table.push(Symbol {
             symbol: parameter.to_owned(),
-            kind: SymbolKind::FunctionParameter,
+            kind: FunctionParameter,
         });
     }
 
@@ -73,13 +74,13 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
             AssignmentStmt(assignment) => {
                 symbol_table.push(Symbol {
                     symbol: assignment.identifier.to_owned(),
-                    kind: SymbolKind::Variable,
+                    kind: Variable,
                 });
             },
             FunctionDefStmt(function_definition_statement) => {
                 symbol_table.push(Symbol {
                     symbol: function_definition_statement.function_name.to_owned(),
-                    kind: SymbolKind::Function,
+                    kind: Function,
                 });
                 children_scopes.push(build_function_scope(&function_definition_statement));
             },
