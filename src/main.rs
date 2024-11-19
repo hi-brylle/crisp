@@ -4,6 +4,7 @@ use parser::build_program_ast;
 use pest::Parser;
 use pest::error::Error;
 use pest_derive::Parser;
+use scope::build_program_scope;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -18,7 +19,8 @@ fn main() {
 
     match parse_source(src) {
         Ok(program_ast) => {
-            println!("\nParse success AST:\n{:?}\n", program_ast)
+            println!("\nParse success AST:\n{:?}\n", program_ast);
+            println!("\nScope built:\n{:?}\n", build_program_scope(&program_ast));
         },
         Err(e) => { 
             eprintln!("Parse error: {:?}", e);
