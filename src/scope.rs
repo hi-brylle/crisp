@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{FunctionDefinitionStatement, Program, Statement::*};
+use crate::ast::{Expression, FunctionDefinitionStatement, Program, Statement::*};
 use SymbolKind::*;
 
 #[derive(Debug)]
@@ -92,4 +92,89 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
         symbol_table,
         children_scopes,
     }
+}
+
+fn extract_symbols(expression_node: &Expression) -> Vec<Symbol> {
+    let mut symbols: Vec<Symbol> = vec![];
+
+    match expression_node {
+        Expression::Identifier(identifier) => {
+            symbols.push(Symbol {
+                symbol: identifier.to_owned(),
+                kind: Variable,
+            });
+        },
+        Expression::Negative(expression) => {
+            symbols.append(&mut extract_symbols(&**expression));
+        },
+        Expression::Plus(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::Minus(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::Times(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::Divide(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::IsEqual(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::NotEqual(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::LessThan(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::LessThanOrEqual(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::GreaterThan(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::GreaterThanOrEqual(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::Not(expression) => {
+            symbols.append(&mut extract_symbols(&**expression));
+        },
+        Expression::Or(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::And(expression, expression1) => {
+            symbols.append(&mut extract_symbols(&**expression));
+            symbols.append(&mut extract_symbols(&**expression1));
+        },
+        Expression::IfElseExpression(if_else_expression) => {
+            symbols.append(&mut extract_symbols(&*if_else_expression.predicate));
+            symbols.append(&mut extract_symbols(&*&if_else_expression.true_branch));
+            symbols.append(&mut extract_symbols(&*&if_else_expression.false_branch));
+        },
+        Expression::FunctionCall(function_call) => {
+            symbols.push(Symbol {
+                symbol: function_call.function_name.to_owned(),
+                kind: Function,
+            });
+            let function_arguments = &function_call.function_arguments;
+            for args in function_arguments {
+                symbols.append(&mut extract_symbols(&args));
+            }
+        },
+        _ => {},
+    }
+
+    symbols
 }
