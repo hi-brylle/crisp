@@ -6,7 +6,8 @@ use SymbolKind::*;
 #[derive(Debug)]
 pub struct Scope {
     pub scope_name: String,
-    pub symbol_table: Vec<Symbol>,
+    pub symbol_table: Vec<Symbol>, // Definitions in a scope available to itself and its children.
+    pub usages: Vec<Symbol>, // Symbol usages (variable references, function calls) found in this scope.
     pub children_scopes: Vec<Scope>
 }
 
@@ -26,6 +27,7 @@ pub enum SymbolKind {
 pub fn build_program_scope(ast_node: &Program) -> Scope {
 
     let mut symbol_table: Vec<Symbol> = vec![];
+    let mut usages: Vec<Symbol> = vec![];
     let mut children_scopes: Vec<Scope> = vec![];
     
     let statements = &ast_node.statements;
@@ -36,7 +38,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
                 });
-                println!("\nSymbols: {:?}\n", extract_symbols(&assignment.rhs));
+                usages.append(&mut extract_symbols(&assignment.rhs));
             },
             FunctionDefStmt(function_definition_statement) => {
                 symbol_table.push(Symbol {
@@ -51,6 +53,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
     Scope {
         scope_name: "(program)".to_owned(),
         symbol_table,
+        usages,
         children_scopes,
     }
 }
@@ -58,6 +61,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
 fn build_function_scope(function_definition_statement: &FunctionDefinitionStatement) -> Scope {
 
     let mut symbol_table: Vec<Symbol> = vec![];
+    let mut usages: Vec<Symbol> = vec![];
     let mut children_scopes: Vec<Scope> = vec![];
 
     let parameters = &function_definition_statement.function_parameters;
@@ -77,6 +81,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
                 });
+                usages.append(&mut extract_symbols(&assignment.rhs));
             },
             FunctionDefStmt(function_definition_statement) => {
                 symbol_table.push(Symbol {
@@ -91,6 +96,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
     Scope {
         scope_name: function_definition_statement.function_name.to_owned(),
         symbol_table,
+        usages,
         children_scopes,
     }
 }
