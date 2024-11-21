@@ -1,5 +1,6 @@
 let a = 42;
 let b = 69;
+let c = (+ a b);
 fun compare(a: Number, b: Number): String {
     let comp =
         if (< a b) {

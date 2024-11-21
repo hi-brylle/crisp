@@ -36,6 +36,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
                 });
+                println!("\nSymbols: {:?}\n", extract_symbols(&assignment.rhs));
             },
             FunctionDefStmt(function_definition_statement) => {
                 symbol_table.push(Symbol {
