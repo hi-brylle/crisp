@@ -11,13 +11,13 @@ pub struct Scope {
     pub children_scopes: Vec<Scope>
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Symbol {
     pub symbol: String,
     pub kind: SymbolKind,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SymbolKind {
     Variable,
     Function,
@@ -184,4 +184,37 @@ fn extract_symbols(expression_node: &Expression) -> Vec<Symbol> {
     }
 
     symbols
+}
+
+fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
+    symbol_table
+        .iter()
+        .any(|s|s.symbol == usage.symbol)
+}
+
+pub fn resolve_names(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
+    let mut errors: Vec<String> = vec![];
+
+    symbol_table_stack.push(scope.symbol_table.clone());
+
+    let mut symbol_table_stack_copy = symbol_table_stack.clone();
+    for usage in &scope.usages {
+        while !symbol_table_stack_copy.is_empty() {
+            let top_symbol_table = symbol_table_stack_copy.pop();
+            match top_symbol_table {
+                Some(innermost_symbol_table) => {
+                    if !usage_is_defined(usage, &innermost_symbol_table) {
+                        errors.push(format!("{:?} {} not defined.", usage.kind, usage.symbol));
+                    }
+                },
+                None => {},
+            }
+        }
+    }
+
+    for inner_scope in &scope.children_scopes {
+        errors.append(&mut resolve_names(inner_scope, symbol_table_stack));
+    }
+
+    errors
 }

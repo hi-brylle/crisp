@@ -1,10 +1,14 @@
 use std::fs::*;
 use std::env::*;
+
 use parser::build_program_ast;
 use pest::Parser;
 use pest::error::Error;
 use pest_derive::Parser;
+
+use ast::Program;
 use scope::build_program_scope;
+use scope::resolve_names;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -17,18 +21,23 @@ mod scope;
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
 
-    match parse_source(src) {
-        Ok(program_ast) => {
-            println!("\nParse success AST:\n{:?}\n", program_ast);
-            println!("\nScope built:\n{:?}\n", build_program_scope(&program_ast));
+    let frontend_result = parse_source(src)
+        .and_then(resolve_scope);
+
+    match frontend_result {
+        Ok(ast) => {
+            println!("Parse and semantic analysis success!");
+            println!("{:?}", ast);
         },
-        Err(e) => { 
-            eprintln!("Parse error: {:?}", e);
+        Err(errors) => {
+            for error in errors {
+                println!("\n{}", error);
+            }
         },
     }
 }
 
-fn parse_source(source: String) -> Result<ast::Program, Error<Rule>> {
+fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
     let parse_result = GrammarParser::parse(Rule::Program, &source);
 
     match parse_result {
@@ -36,6 +45,18 @@ fn parse_source(source: String) -> Result<ast::Program, Error<Rule>> {
             let root = pairs.next().unwrap();
             Ok(build_program_ast(root))
         },
-        Err(e) => { Err(e) },
+        Err(e) => {
+            Err(vec![format!("Parse error: {:?}", e)])
+        },
+    }
+}
+
+fn resolve_scope(program_ast: Program) -> Result<ast::Program, Vec<String>>{
+    let program_scope = build_program_scope(&program_ast);
+    let resolution_errors = resolve_names(&program_scope, &mut vec![]);
+    if resolution_errors.is_empty() {
+        Ok(program_ast)
+    } else {
+        Err(resolution_errors)
     }
 }
