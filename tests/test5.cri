@@ -1,0 +1,2 @@
+let redeclaration = 1;
+let redeclaration = 2;

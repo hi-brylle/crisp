@@ -1,3 +1,5 @@
+let forward_use = (compare 1 2);
+
 fun compare(a: Number, b: Number): String {
     let comp =
         if (< a b) {
@@ -8,5 +10,5 @@ fun compare(a: Number, b: Number): String {
         } else {
             "a and b are equal"
         };
-    return compa
+    return comp
 };

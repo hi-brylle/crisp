@@ -1,0 +1,3 @@
+let forward_use = (+ a b);
+let a = 1;
+let b = 2;
