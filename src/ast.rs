@@ -13,7 +13,9 @@ pub enum Statement {
 pub struct Assignment {
     pub identifier: String,
     pub type_string: TypeString,
-    pub rhs: Expression
+    pub rhs: Expression,
+
+    pub start_pos: usize
 }
 
 #[derive(Debug)]

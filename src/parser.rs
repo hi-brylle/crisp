@@ -52,6 +52,7 @@ fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
 fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
     debug_pair(&pair);
 
+    let start_pos = pair.as_span().start();
     // Contains possibly three items: the identifier, an optional type, and the rhs.
     let mut children = pair.into_inner();
 
@@ -64,6 +65,7 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
                 identifier,
                 type_string: TypeString::Unspecified,
                 rhs,
+                start_pos
             }   
         },
         3 => {
@@ -77,6 +79,7 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
                 identifier,
                 type_string,
                 rhs,
+                start_pos
             }            
         }
         _ => todo!("Some Assignment AST builder children have not been accounted for! Unexpected children size: {}", children.len())

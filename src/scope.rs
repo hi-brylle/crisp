@@ -243,8 +243,8 @@ pub fn scope_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>
         let mut symbol_table_stack_copy = symbol_table_stack.clone();
 
         loop {
-            let top_symbol_table = symbol_table_stack_copy.pop();
-            match top_symbol_table {
+            let innermost_symbol_table = symbol_table_stack_copy.pop();
+            match innermost_symbol_table {
                 Some(innermost_symbol_table) => {
                     if usage_is_defined(usage, &innermost_symbol_table) {
                         break;
