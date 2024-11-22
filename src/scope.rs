@@ -28,7 +28,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
 
     let mut symbol_table: Vec<Symbol> = vec![];
     let mut usages: Vec<Symbol> = vec![];
-    let mut children_scopes: Vec<Scope> = vec![];
+    let mut inner_scopes: Vec<Scope> = vec![];
     
     let statements = &ast_node.statements;
     for s in statements {
@@ -45,7 +45,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                     symbol: function_definition_statement.function_name.to_owned(),
                     kind: Function,
                 });
-                children_scopes.push(build_function_scope(&function_definition_statement));
+                inner_scopes.push(build_function_scope(&function_definition_statement));
             },
         }
     }
@@ -54,7 +54,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
         scope_name: "(program)".to_owned(),
         symbol_table,
         usages,
-        inner_scopes: children_scopes,
+        inner_scopes,
     }
 }
 
@@ -62,7 +62,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
 
     let mut symbol_table: Vec<Symbol> = vec![];
     let mut usages: Vec<Symbol> = vec![];
-    let mut children_scopes: Vec<Scope> = vec![];
+    let mut inner_scopes: Vec<Scope> = vec![];
 
     let parameters = &function_definition_statement.function_parameters;
 
@@ -88,7 +88,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
                     symbol: function_definition_statement.function_name.to_owned(),
                     kind: Function,
                 });
-                children_scopes.push(build_function_scope(&function_definition_statement));
+                inner_scopes.push(build_function_scope(&function_definition_statement));
             },
         }
     }
@@ -97,7 +97,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
         scope_name: function_definition_statement.function_name.to_owned(),
         symbol_table,
         usages,
-        inner_scopes: children_scopes,
+        inner_scopes,
     }
 }
 
