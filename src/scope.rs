@@ -15,6 +15,7 @@ pub struct Scope {
 pub struct Symbol {
     pub symbol: String,
     pub kind: SymbolKind,
+    pub start_pos: Option<usize>
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -37,6 +38,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                 symbol_table.push(Symbol {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
+                    start_pos: None
                 });
                 usages.append(&mut extract_usages(&assignment.rhs));
             },
@@ -44,6 +46,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                 symbol_table.push(Symbol {
                     symbol: function_definition_statement.function_name.to_owned(),
                     kind: Function,
+                    start_pos: None
                 });
                 inner_scopes.push(build_function_scope(&function_definition_statement));
             },
@@ -72,6 +75,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
         symbol_table.push(Symbol {
             symbol: parameter.to_owned(),
             kind: FunctionParameter,
+            start_pos: None
         });
     }
 
@@ -82,6 +86,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
                 symbol_table.push(Symbol {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
+                    start_pos: None
                 });
                 usages.append(&mut extract_usages(&assignment.rhs));
             },
@@ -89,6 +94,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
                 symbol_table.push(Symbol {
                     symbol: function_definition_statement.function_name.to_owned(),
                     kind: Function,
+                    start_pos: None
                 });
                 inner_scopes.push(build_function_scope(&function_definition_statement));
             },
@@ -121,6 +127,7 @@ fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
             usages.push(Symbol {
                 symbol: identifier.identifier_name.to_owned(),
                 kind: Variable,
+                start_pos: Some(identifier.start_pos)
             });
         },
         Expression::Negative(expression) => {
@@ -186,6 +193,7 @@ fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
             usages.push(Symbol {
                 symbol: function_call.function_name.to_owned(),
                 kind: Function,
+                start_pos: None
             });
             let function_arguments = &function_call.function_arguments;
             for args in function_arguments {
