@@ -187,32 +187,39 @@ fn extract_symbols(expression_node: &Expression) -> Vec<Symbol> {
 }
 
 fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
+    println!("Working with this symbol table: {:?}", 
+        symbol_table.clone().into_iter().map(|s|s.symbol).collect::<Vec<String>>());
+    println!("Testing for usage {}...\n", usage.symbol);
+
     symbol_table
         .iter()
-        .any(|s|s.symbol == usage.symbol)
+        .any(|s|usage.symbol == s.symbol)
 }
 
 pub fn resolve_names(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
     let mut errors: Vec<String> = vec![];
 
     symbol_table_stack.push(scope.symbol_table.clone());
-    println!("Working on the following stack: {:?}", symbol_table_stack);
 
-    let mut symbol_table_stack_copy = symbol_table_stack.clone();
     for usage in &scope.usages {
-        println!("Testing for usage {}...", usage.symbol);
-        while !symbol_table_stack_copy.is_empty() {
+        // Clone the symbol table stack because checking for valid usages
+        // requires popping of the stack indenpendently per usage.
+        let mut symbol_table_stack_copy = symbol_table_stack.clone();
+
+        loop {
             let top_symbol_table = symbol_table_stack_copy.pop();
             match top_symbol_table {
                 Some(innermost_symbol_table) => {
-                    if !usage_is_defined(usage, &innermost_symbol_table) {
-                        errors.push(format!("{:?} \"{}\" not defined in \"{}\" scope.", usage.kind, usage.symbol, scope.scope_name));
+                    if usage_is_defined(usage, &innermost_symbol_table) {
+                        break;
                     }
                 },
-                None => {},
+                None => {
+                    errors.push(format!("{:?} \"{}\" not defined in \"{}\" scope.", usage.kind, usage.symbol, scope.scope_name));
+                    break;
+                },
             }
         }
-        symbol_table_stack_copy = symbol_table_stack.clone();
     }
 
     for inner_scope in &scope.inner_scopes {

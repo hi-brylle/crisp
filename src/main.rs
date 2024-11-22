@@ -53,8 +53,8 @@ fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
 
 fn resolve_scope(program_ast: Program) -> Result<ast::Program, Vec<String>>{
     let program_scope = build_program_scope(&program_ast);
-    println!("Program scope:\n{:?}", program_scope);
-    
+    println!("Program scope:\n{:?}\n", program_scope);
+
     let resolution_errors = resolve_names(&program_scope, &mut vec![]);
     if resolution_errors.is_empty() {
         Ok(program_ast)
