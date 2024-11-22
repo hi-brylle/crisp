@@ -93,6 +93,14 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
         }
     }
 
+    let return_expression = &function_definition_statement.function_body.return_expression;
+    match return_expression {
+        Some(return_expression) => {
+            usages.append(&mut extract_symbols(&return_expression));
+        },
+        None => {},
+    }
+
     Scope {
         scope_name: function_definition_statement.function_name.to_owned(),
         symbol_table,
