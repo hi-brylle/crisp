@@ -8,7 +8,7 @@ use pest_derive::Parser;
 
 use ast::Program;
 use scope::build_program_scope;
-use scope::resolve_names;
+use scope::scope_resolution;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -21,8 +21,9 @@ mod scope;
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
 
-    let frontend_result = parse_source(src)
-        .and_then(resolve_scope);
+    let frontend_result = 
+        parse_source(src)
+        .and_then(resolve_usages);
 
     match frontend_result {
         Ok(ast) => {
@@ -51,11 +52,11 @@ fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
     }
 }
 
-fn resolve_scope(program_ast: Program) -> Result<ast::Program, Vec<String>>{
+fn resolve_usages(program_ast: Program) -> Result<ast::Program, Vec<String>>{
     let program_scope = build_program_scope(&program_ast);
     println!("Program scope:\n{:?}\n", program_scope);
 
-    let resolution_errors = resolve_names(&program_scope, &mut vec![]);
+    let resolution_errors = scope_resolution(&program_scope, &mut vec![]);
     if resolution_errors.is_empty() {
         Ok(program_ast)
     } else {

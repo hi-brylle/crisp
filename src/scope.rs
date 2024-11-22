@@ -187,16 +187,16 @@ fn extract_symbols(expression_node: &Expression) -> Vec<Symbol> {
 }
 
 fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
+    println!("Testing for usage {}...\n", usage.symbol);
     println!("Working with this symbol table: {:?}", 
         symbol_table.clone().into_iter().map(|s|s.symbol).collect::<Vec<String>>());
-    println!("Testing for usage {}...\n", usage.symbol);
 
     symbol_table
         .iter()
         .any(|s|usage.symbol == s.symbol)
 }
 
-pub fn resolve_names(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
+pub fn scope_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
     let mut errors: Vec<String> = vec![];
 
     symbol_table_stack.push(scope.symbol_table.clone());
@@ -223,7 +223,7 @@ pub fn resolve_names(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -
     }
 
     for inner_scope in &scope.inner_scopes {
-        errors.append(&mut resolve_names(inner_scope, symbol_table_stack));
+        errors.append(&mut scope_resolution(inner_scope, symbol_table_stack));
     }
 
     errors
