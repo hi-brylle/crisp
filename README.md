@@ -5,13 +5,13 @@ Test source files are found in `tests/`. Files have a `.cri` extension (pronounc
 
 ## Project tasks
 ### Syntax analysis
-[x] Prototype a parser with [pest.rs](https://pest.rs).
-[ ] Expand grammar with comments.
-[ ] Expand grammar with a keyword modifier for tail recursive functions.
-[ ] Handwrite a lexer and a parser for outputting better error messages.
+- [x] Prototype a parser with [pest.rs](https://pest.rs).
+- [ ] Expand grammar with comments.
+- [ ] Expand grammar with a keyword modifier for tail recursive functions.
+- [ ] Handwrite a lexer and a parser for outputting better error messages.
 
 ### Semantic analysis
-[x] Prototype scope resolution.
-[ ] Implement type checking.
-[ ] Implement type inference.
-[ ] Implement lowering.
+- [x] Prototype scope resolution.
+- [ ] Implement type checking.
+- [ ] Implement type inference.
+- [ ] Implement lowering.
