@@ -207,9 +207,11 @@ fn deduplicate_usages(usages: Vec<Symbol>) -> Vec<Symbol> {
 }
 
 fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
-    println!("Testing for usage {}...", usage.symbol);
-    println!("Working with this symbol table: {:?}\n", 
-        symbol_table.clone().into_iter().map(|s|s.symbol).collect::<Vec<String>>());
+    println!("Testing for usage {:?} with the following symbol table...", usage);
+    for symbol in symbol_table {
+        println!("{:?}", symbol);
+    }
+    println!();
 
     symbol_table
         .iter()
