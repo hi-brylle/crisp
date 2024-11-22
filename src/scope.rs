@@ -204,17 +204,6 @@ fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
         .any(|s|usage.symbol == s.symbol)
 }
 
-fn extract_redeclarations(symbol_table: &Vec<Symbol>) -> Vec<Symbol> {
-    let mut duplicates: Vec<Symbol> = vec![];
-    let mut temp = HashSet::new();
-    for symbol in symbol_table {
-        if !temp.insert(symbol) {
-            duplicates.push(symbol.clone());
-        }
-    }
-    duplicates
-}
-
 fn check_for_redeclarations(scope: &Scope) -> Vec<String> {
     let mut errors: Vec<String> = vec![];
     let mut temp = HashSet::new();
