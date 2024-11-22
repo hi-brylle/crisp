@@ -210,6 +210,7 @@ pub fn resolve_names(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -
                 None => {},
             }
         }
+        symbol_table_stack_copy = symbol_table_stack.clone();
     }
 
     for inner_scope in &scope.children_scopes {
