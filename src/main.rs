@@ -3,7 +3,6 @@ use std::env::*;
 
 use parser::build_program_ast;
 use pest::Parser;
-use pest::error::Error;
 use pest_derive::Parser;
 
 use ast::Program;
