@@ -187,8 +187,8 @@ fn extract_symbols(expression_node: &Expression) -> Vec<Symbol> {
 }
 
 fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
-    println!("Testing for usage {}...\n", usage.symbol);
-    println!("Working with this symbol table: {:?}", 
+    println!("Testing for usage {}...", usage.symbol);
+    println!("Working with this symbol table: {:?}\n", 
         symbol_table.clone().into_iter().map(|s|s.symbol).collect::<Vec<String>>());
 
     symbol_table

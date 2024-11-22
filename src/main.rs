@@ -32,7 +32,7 @@ fn main() {
         },
         Err(errors) => {
             for error in errors {
-                println!("\n{}", error);
+                println!("Semantic analysis error: {}", error);
             }
         },
     }
