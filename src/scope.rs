@@ -226,5 +226,6 @@ pub fn scope_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>
         errors.append(&mut scope_resolution(inner_scope, symbol_table_stack));
     }
 
+    errors.reverse();
     errors
 }

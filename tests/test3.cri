@@ -10,3 +10,5 @@ fun compare(a: Number, b: Number): String {
         };
     return comp
 };
+
+let a = (add 1 2);
