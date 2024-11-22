@@ -200,8 +200,12 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             Expression::Number(integer)
         },
         Rule::Identifier => {
-            let identifier = pair.as_str().parse::<String>().unwrap();
-            Expression::Identifier(identifier)
+            let identifier_name = pair.as_str().parse::<String>().unwrap();
+            let start_pos = pair.as_span().start();
+            Expression::Ident(Identifier {
+                identifier_name,
+                start_pos,
+            })
         }
         Rule::FunctionCall => {
             let mut children = pair.into_inner();

@@ -61,13 +61,19 @@ pub enum Expression {
     Or(Box<Expression>, Box<Expression>),
     And(Box<Expression>, Box<Expression>),
 
-    Identifier(String),
+    Ident(Identifier),
 
     FunctionCall(FunctionCall),
 
     IfElseExpression(IfElseExpression),
 
     StringLiteral(String)
+}
+
+#[derive(Debug)]
+pub struct Identifier {
+    pub identifier_name: String,
+    pub start_pos: usize
 }
 
 #[derive(Debug)]

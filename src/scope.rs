@@ -117,9 +117,9 @@ fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
     let mut usages: Vec<Symbol> = vec![];
 
     match expression_node {
-        Expression::Identifier(identifier) => {
+        Expression::Ident(identifier) => {
             usages.push(Symbol {
-                symbol: identifier.to_owned(),
+                symbol: identifier.identifier_name.to_owned(),
                 kind: Variable,
             });
         },
