@@ -8,7 +8,7 @@ pub struct Scope {
     pub scope_name: String,
     pub symbol_table: Vec<Symbol>, // Definitions in a scope available to itself and its children.
     pub usages: Vec<Symbol>, // Symbol usages (variable references, function calls) found in this scope.
-    pub children_scopes: Vec<Scope>
+    pub inner_scopes: Vec<Scope>
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -54,7 +54,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
         scope_name: "(program)".to_owned(),
         symbol_table,
         usages,
-        children_scopes,
+        inner_scopes: children_scopes,
     }
 }
 
@@ -97,7 +97,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
         scope_name: function_definition_statement.function_name.to_owned(),
         symbol_table,
         usages,
-        children_scopes,
+        inner_scopes: children_scopes,
     }
 }
 
@@ -214,7 +214,7 @@ pub fn resolve_names(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -
         symbol_table_stack_copy = symbol_table_stack.clone();
     }
 
-    for inner_scope in &scope.children_scopes {
+    for inner_scope in &scope.inner_scopes {
         errors.append(&mut resolve_names(inner_scope, symbol_table_stack));
     }
 
