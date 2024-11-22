@@ -196,6 +196,7 @@ pub fn resolve_names(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -
     let mut errors: Vec<String> = vec![];
 
     symbol_table_stack.push(scope.symbol_table.clone());
+    println!("Working on the following stack: {:?}", symbol_table_stack);
 
     let mut symbol_table_stack_copy = symbol_table_stack.clone();
     for usage in &scope.usages {

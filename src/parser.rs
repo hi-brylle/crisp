@@ -12,7 +12,10 @@ pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
             
             for c in children {
                 match c.as_rule() {
-                    Rule::EOI => { println!("Skip EOI.") },
+                    Rule::EOI => { 
+                        println!("Skip EOI.");
+                        println!("=========\n");
+                    },
                     Rule::Statement => {
                         statements.push(build_statement_ast(c));
                     },
