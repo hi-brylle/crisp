@@ -38,7 +38,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                 symbol_table.push(Symbol {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
-                    start_pos: None
+                    start_pos: Some(assignment.start_pos)
                 });
                 usages.append(&mut extract_usages(&assignment.rhs));
             },
@@ -86,7 +86,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
                 symbol_table.push(Symbol {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
-                    start_pos: None
+                    start_pos: Some(assignment.start_pos)
                 });
                 usages.append(&mut extract_usages(&assignment.rhs));
             },
@@ -221,9 +221,24 @@ fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
     }
     println!();
 
-    symbol_table
-        .iter()
-        .any(|s|usage.symbol == s.symbol)
+    match usage.kind {
+        Variable => {
+            symbol_table
+            .iter()
+            .filter(|s|s.kind == Variable)
+            .any(|s|
+                usage.symbol == s.symbol &&
+                usage.start_pos.unwrap() > s.start_pos.unwrap()
+            )
+        },
+        _ => {
+            symbol_table
+            .iter()
+            .any(|s|usage.symbol == s.symbol)
+        }
+    }
+
+    
 }
 
 fn check_for_redeclarations(scope: &Scope) -> Vec<String> {
