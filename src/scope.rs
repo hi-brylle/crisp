@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::ast::{Expression, FunctionDefinitionStatement, Program, Statement::*};
 use SymbolKind::*;
@@ -11,13 +11,13 @@ pub struct Scope {
     pub children_scopes: Vec<Scope>
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Symbol {
     pub symbol: String,
     pub kind: SymbolKind,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum SymbolKind {
     Variable,
     Function,
@@ -102,88 +102,88 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
 }
 
 fn extract_symbols(expression_node: &Expression) -> Vec<Symbol> {
-    let mut symbols: Vec<Symbol> = vec![];
+    let mut symbols: HashSet<Symbol> = HashSet::new();
 
     match expression_node {
         Expression::Identifier(identifier) => {
-            symbols.push(Symbol {
+            symbols.insert(Symbol {
                 symbol: identifier.to_owned(),
                 kind: Variable,
             });
         },
         Expression::Negative(expression) => {
-            symbols.append(&mut extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression));
         },
         Expression::Plus(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::Minus(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::Times(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::Divide(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::IsEqual(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::NotEqual(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::LessThan(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::LessThanOrEqual(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::GreaterThan(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::GreaterThanOrEqual(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::Not(expression) => {
-            symbols.append(&mut extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression));
         },
         Expression::Or(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::And(expression, expression1) => {
-            symbols.append(&mut extract_symbols(&**expression));
-            symbols.append(&mut extract_symbols(&**expression1));
+            symbols.extend(extract_symbols(&**expression));
+            symbols.extend(extract_symbols(&**expression1));
         },
         Expression::IfElseExpression(if_else_expression) => {
-            symbols.append(&mut extract_symbols(&*if_else_expression.predicate));
-            symbols.append(&mut extract_symbols(&*&if_else_expression.true_branch));
-            symbols.append(&mut extract_symbols(&*&if_else_expression.false_branch));
+            symbols.extend(extract_symbols(&*if_else_expression.predicate));
+            symbols.extend(extract_symbols(&*&if_else_expression.true_branch));
+            symbols.extend(extract_symbols(&*&if_else_expression.false_branch));
         },
         Expression::FunctionCall(function_call) => {
-            symbols.push(Symbol {
+            symbols.insert(Symbol {
                 symbol: function_call.function_name.to_owned(),
                 kind: Function,
             });
             let function_arguments = &function_call.function_arguments;
             for args in function_arguments {
-                symbols.append(&mut extract_symbols(&args));
+                symbols.extend(extract_symbols(&args));
             }
         },
         _ => {},
     }
 
-    symbols
+    symbols.into_iter().collect()
 }
 
 fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
@@ -199,12 +199,13 @@ pub fn resolve_names(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -
 
     let mut symbol_table_stack_copy = symbol_table_stack.clone();
     for usage in &scope.usages {
+        println!("Testing for usage {}...", usage.symbol);
         while !symbol_table_stack_copy.is_empty() {
             let top_symbol_table = symbol_table_stack_copy.pop();
             match top_symbol_table {
                 Some(innermost_symbol_table) => {
                     if !usage_is_defined(usage, &innermost_symbol_table) {
-                        errors.push(format!("{:?} {} not defined.", usage.kind, usage.symbol));
+                        errors.push(format!("{:?} \"{}\" not defined in \"{}\" scope.", usage.kind, usage.symbol, scope.scope_name));
                     }
                 },
                 None => {},

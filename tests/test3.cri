@@ -1,0 +1,12 @@
+fun compare(a: Number, b: Number): String {
+    let comp =
+        if (< a c) {
+            "a is less than b"
+        } else
+        if (> a c) {
+            "a is greater than b"
+        } else {
+            "a and b are equal"
+        };
+    return comp
+};
