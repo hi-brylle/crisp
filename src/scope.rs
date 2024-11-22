@@ -215,13 +215,22 @@ fn extract_redeclarations(symbol_table: &Vec<Symbol>) -> Vec<Symbol> {
     duplicates
 }
 
+fn check_for_redeclarations(scope: &Scope) -> Vec<String> {
+    let mut errors: Vec<String> = vec![];
+    let mut temp = HashSet::new();
+    for symbol in &scope.symbol_table {
+        if !temp.insert(symbol) {
+            errors.push(format!("{:?} \"{}\" redeclared in \"{}\" scope.", symbol.kind, symbol.symbol, scope.scope_name));
+        }
+    }
+    
+    errors
+}
+
 pub fn scope_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
     let mut errors: Vec<String> = vec![];
 
-    let redeclarations = extract_redeclarations(&scope.symbol_table);
-    for redeclaration in redeclarations {
-        errors.push(format!("{:?} \"{}\" redeclared in \"{}\" scope.", redeclaration.kind, redeclaration.symbol, scope.scope_name));
-    }
+    errors.append(&mut check_for_redeclarations(&scope));
 
     symbol_table_stack.push(scope.symbol_table.clone());
 

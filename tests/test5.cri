@@ -1,7 +1,8 @@
-let redeclaration = 1;
-let redeclaration = 2;
+let bad = 1;
+let bad = 2;
 
 fun add(a: Number, b: Number): Number {
+    let bad = "this should be okay";
     let temp = (+ a b);
     let temp = (- a b);
     return temp
