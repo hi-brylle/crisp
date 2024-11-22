@@ -38,7 +38,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
                 });
-                usages.append(&mut extract_symbols(&assignment.rhs));
+                usages.append(&mut extract_usages(&assignment.rhs));
             },
             FunctionDefStmt(function_definition_statement) => {
                 symbol_table.push(Symbol {
@@ -49,6 +49,8 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
             },
         }
     }
+
+    usages = deduplicate_usages(usages);
 
     Scope {
         scope_name: "(program)".to_owned(),
@@ -81,7 +83,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
                 });
-                usages.append(&mut extract_symbols(&assignment.rhs));
+                usages.append(&mut extract_usages(&assignment.rhs));
             },
             FunctionDefStmt(function_definition_statement) => {
                 symbol_table.push(Symbol {
@@ -96,10 +98,12 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
     let return_expression = &function_definition_statement.function_body.return_expression;
     match return_expression {
         Some(return_expression) => {
-            usages.append(&mut extract_symbols(&return_expression));
+            usages.append(&mut extract_usages(&return_expression));
         },
         None => {},
     }
+
+    usages = deduplicate_usages(usages);
 
     Scope {
         scope_name: function_definition_statement.function_name.to_owned(),
@@ -109,89 +113,97 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
     }
 }
 
-fn extract_symbols(expression_node: &Expression) -> Vec<Symbol> {
-    let mut symbols: HashSet<Symbol> = HashSet::new();
+fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
+    let mut usages: Vec<Symbol> = vec![];
 
     match expression_node {
         Expression::Identifier(identifier) => {
-            symbols.insert(Symbol {
+            usages.push(Symbol {
                 symbol: identifier.to_owned(),
                 kind: Variable,
             });
         },
         Expression::Negative(expression) => {
-            symbols.extend(extract_symbols(&**expression));
+            usages.append(&mut extract_usages(&**expression));
         },
         Expression::Plus(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::Minus(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::Times(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::Divide(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::IsEqual(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::NotEqual(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::LessThan(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::LessThanOrEqual(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::GreaterThan(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::GreaterThanOrEqual(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::Not(expression) => {
-            symbols.extend(extract_symbols(&**expression));
+            usages.append(&mut extract_usages(&**expression));
         },
         Expression::Or(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::And(expression, expression1) => {
-            symbols.extend(extract_symbols(&**expression));
-            symbols.extend(extract_symbols(&**expression1));
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
         },
         Expression::IfElseExpression(if_else_expression) => {
-            symbols.extend(extract_symbols(&*if_else_expression.predicate));
-            symbols.extend(extract_symbols(&*&if_else_expression.true_branch));
-            symbols.extend(extract_symbols(&*&if_else_expression.false_branch));
+            usages.append(&mut extract_usages(&*if_else_expression.predicate));
+            usages.append(&mut extract_usages(&*&if_else_expression.true_branch));
+            usages.append(&mut extract_usages(&*&if_else_expression.false_branch));
         },
         Expression::FunctionCall(function_call) => {
-            symbols.insert(Symbol {
+            usages.push(Symbol {
                 symbol: function_call.function_name.to_owned(),
                 kind: Function,
             });
             let function_arguments = &function_call.function_arguments;
             for args in function_arguments {
-                symbols.extend(extract_symbols(&args));
+                usages.append(&mut extract_usages(&args));
             }
         },
         _ => {},
     }
 
-    symbols.into_iter().collect()
+    usages
+}
+
+fn deduplicate_usages(usages: Vec<Symbol>) -> Vec<Symbol> {
+    usages
+        .into_iter()
+        .collect::<HashSet<Symbol>>()
+        .into_iter()
+        .collect::<Vec<Symbol>>()
 }
 
 fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
