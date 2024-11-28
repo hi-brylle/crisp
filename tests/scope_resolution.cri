@@ -1,0 +1,32 @@
+let c = (* a b); /* error: a and b are undefined in program scope */
+let a = 32;
+let b = 2;
+
+/* this is okay */
+fun compare(a: Number, b: Number): String {
+    let comp =
+        if (< a b) {
+            "a is less than b"
+        } else
+        if (> a b) {
+            "a is greater than b"
+        } else {
+            "a and b are equal"
+        };
+    return comp
+};
+
+/* this is okay because b may not be in the function scope, but it's in the larger program scope */
+fun is_b_positive(): Boolean {
+    return (> b 0)
+};
+
+/* this is still okay because c is declared in program scope (even though it isn't defined itself) */
+fun is_c_positive(): Boolean {
+    return (> c 0)
+};
+
+/* this is not okay because d is not found anywhere */
+fun is_d_positive(): Boolean {
+    return (> d 0)
+};
