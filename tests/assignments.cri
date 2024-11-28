@@ -1,0 +1,6 @@
+let explicit: Boolean = true;
+
+/* types can be elidedy */
+let str = "hello world";
+let boo = false;
+let num = 42;
