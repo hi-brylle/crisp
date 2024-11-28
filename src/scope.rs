@@ -221,11 +221,16 @@ fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
         Variable => {
             symbol_table
             .iter()
-            .filter(|s| s.kind == Variable)
+            .filter(|s| {s.kind == Variable || s.kind == FunctionParameter})
             .map(|s| {println!("\t{:?}",s);s})
             .any(|s|
-                usage.symbol == s.symbol &&
-                usage.start_pos.unwrap() > s.start_pos.unwrap()
+                match s.kind {
+                    Variable => usage.symbol == s.symbol &&
+                        usage.start_pos.unwrap() > s.start_pos.unwrap(),
+                    Function => unreachable!("Cannot check usage against function!"),
+                    FunctionParameter => usage.symbol == s.symbol,
+                }
+                
             )
         },
         _ => {
