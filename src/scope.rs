@@ -249,7 +249,8 @@ pub fn scope_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>
 
     errors.append(&mut check_for_redeclarations(&scope));
 
-    symbol_table_stack.push(scope.symbol_table.clone());
+    // Push symbol tables into this stack for use in inner scopes.
+    symbol_table_stack.push(scope.symbol_table.clone()); 
 
     for usage in &scope.usages {
         // Clone the symbol table stack because checking for valid usages
