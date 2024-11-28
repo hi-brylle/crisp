@@ -20,7 +20,7 @@ FunctionBody = { Statement* ~ (("return " | "return\t" | "return\n") ~  Expressi
 Expression = { 
     FunctionCall |
     IfElseExpression |
-    IntegerLiteral | 
+    NumberLiteral | 
     BooleanLiteral | 
     StringLiteral |
     Identifier |
@@ -53,7 +53,7 @@ IfElseExpression = { ("if " | "if\t" | "if\n" | "if") ~ Expression ~
     )
 }
 
-IntegerLiteral = @{ ASCII_DIGIT+ }
+NumberLiteral = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 
 BooleanLiteral = @{ "true" | "false" }
 

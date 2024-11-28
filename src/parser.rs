@@ -195,9 +195,9 @@ fn build_expression_ast(pair: pest::iterators::Pair<Rule>) -> Expression {
             println!("\nExpression recursive call debug, children of length {}: {:?}\n", children.len(), children);
             build_expression_ast(children.next().unwrap())
         }
-        Rule::IntegerLiteral => {
-            let integer = pair.as_str().parse::<i64>().unwrap();
-            Expression::Number(integer)
+        Rule::NumberLiteral => {
+            let number = pair.as_str().parse::<f64>().unwrap();
+            Expression::Number(number)
         },
         Rule::Identifier => {
             let identifier_name = pair.as_str().parse::<String>().unwrap();

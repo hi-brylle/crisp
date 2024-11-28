@@ -42,7 +42,7 @@ pub enum TypeString {
 
 #[derive(Debug)]
 pub enum Expression {
-    Number(i64),
+    Number(f64),
     Negative(Box<Expression>),
     Plus(Box<Expression>, Box<Expression>),
     Minus(Box<Expression>, Box<Expression>),
