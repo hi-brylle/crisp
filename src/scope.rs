@@ -215,17 +215,14 @@ fn deduplicate_usages(usages: Vec<Symbol>) -> Vec<Symbol> {
 }
 
 fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
-    println!("Testing for usage {:?} with the following symbol table...", usage);
-    for symbol in symbol_table {
-        println!("{:?}", symbol);
-    }
-    println!();
+    println!("\nTesting for usage {:?} with the following symbol table:", usage);
 
     match usage.kind {
         Variable => {
             symbol_table
             .iter()
-            .filter(|s|s.kind == Variable)
+            .filter(|s| s.kind == Variable)
+            .map(|s| {println!("\t{:?}",s);s})
             .any(|s|
                 usage.symbol == s.symbol &&
                 usage.start_pos.unwrap() > s.start_pos.unwrap()
@@ -234,7 +231,8 @@ fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
         _ => {
             symbol_table
             .iter()
-            .any(|s|usage.symbol == s.symbol)
+            .map(|s| {println!("{:?}",s);s})
+            .any(|s| usage.symbol == s.symbol)
         }
     }
 
