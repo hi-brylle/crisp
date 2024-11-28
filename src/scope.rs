@@ -265,7 +265,7 @@ pub fn scope_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>
                     }
                 },
                 None => {
-                    errors.push(format!("{:?} \"{}\" not defined in \"{}\" scope.", usage.kind, usage.symbol, scope.scope_name));
+                    errors.push(format!("{:?} \"{}\" not defined in \"{}\" scope and beyond.", usage.kind, usage.symbol, scope.scope_name));
                     break;
                 },
             }
