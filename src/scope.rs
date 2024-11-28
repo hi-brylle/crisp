@@ -53,8 +53,6 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
         }
     }
 
-    usages = deduplicate_usages(usages);
-
     Scope {
         scope_name: "(program)".to_owned(),
         symbol_table,
@@ -108,8 +106,6 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
         },
         None => {},
     }
-
-    usages = deduplicate_usages(usages);
 
     Scope {
         scope_name: function_definition_statement.function_name.to_owned(),
@@ -204,14 +200,6 @@ fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
     }
 
     usages
-}
-
-fn deduplicate_usages(usages: Vec<Symbol>) -> Vec<Symbol> {
-    usages
-        .into_iter()
-        .collect::<HashSet<Symbol>>()
-        .into_iter()
-        .collect::<Vec<Symbol>>()
 }
 
 fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
