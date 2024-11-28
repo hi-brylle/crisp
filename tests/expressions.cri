@@ -1,0 +1,10 @@
+let exp = (+ 12 (* 7 2)); /* expressions must be assigned */
+
+let a = (+ 10 5);
+let b = (* 2 2);
+
+let is_a_greater_than_b = if (> a b) {
+    true
+} else {
+    false
+};
