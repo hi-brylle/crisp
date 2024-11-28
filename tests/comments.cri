@@ -1,0 +1,5 @@
+/*
+    multi-line comment
+*/
+let a = 1; /*single-line comment*/
+let b = /* terrible comment */ 2;
