@@ -30,3 +30,14 @@ fun is_c_positive(): Boolean {
 fun is_d_positive(): Boolean {
     return (> d 0)
 };
+
+/* redeclaration error */
+let e = 2.71;
+let e = "error";
+
+/* redeclaration in a different scope */
+fun redeclaration(): String {
+    let e = 2.71;
+    let e = "error";
+    return f /* undefined usage error */
+};

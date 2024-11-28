@@ -234,9 +234,9 @@ fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
 
 fn check_for_redeclarations(scope: &Scope) -> Vec<String> {
     let mut errors: Vec<String> = vec![];
-    let mut temp = HashSet::new();
+    let mut temp: HashSet<String> = HashSet::new();
     for symbol in &scope.symbol_table {
-        if !temp.insert(symbol) {
+        if !temp.insert(symbol.symbol.clone()) {
             errors.push(format!("{:?} \"{}\" redeclared in \"{}\" scope.", symbol.kind, symbol.symbol, scope.scope_name));
         }
     }
