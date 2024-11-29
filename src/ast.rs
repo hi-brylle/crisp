@@ -12,7 +12,7 @@ pub enum Statement {
 #[derive(Debug)]
 pub struct Assignment {
     pub identifier: String,
-    pub type_string: TypeString,
+    pub type_annotation: TypeLiteral,
     pub rhs: Expression,
     pub start_pos: usize
 }
@@ -20,8 +20,8 @@ pub struct Assignment {
 #[derive(Debug)]
 pub struct FunctionDefinitionStatement {
     pub function_name: String,
-    pub function_parameters: Vec<(String, TypeString)>,
-    pub function_return_type: TypeString,
+    pub function_parameters: Vec<(String, TypeLiteral)>,
+    pub function_return_type: TypeLiteral,
     pub function_body: FunctionBody
 }
 
@@ -32,7 +32,7 @@ pub struct FunctionBody {
 }
 
 #[derive(Debug)]
-pub enum TypeString {
+pub enum TypeLiteral {
     Unspecified, // This is subject to type inference later.
     Number,
     Boolean,

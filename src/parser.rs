@@ -63,7 +63,7 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
         
             Assignment {
                 identifier,
-                type_string: TypeString::Unspecified,
+                type_annotation: TypeLiteral::Unspecified,
                 rhs,
                 start_pos
             }   
@@ -73,11 +73,11 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
             let type_string_raw = children.next().unwrap().as_str();
             let rhs = build_expression_ast(children.next().unwrap());
         
-            let type_string: TypeString = parse_raw_type_string(type_string_raw);
+            let type_string: TypeLiteral = parse_type_literal(type_string_raw);
 
             Assignment {
                 identifier,
-                type_string,
+                type_annotation: type_string,
                 rhs,
                 start_pos
             }            
@@ -97,12 +97,12 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
 
     let function_name = children.next().unwrap().as_str().parse::<String>().unwrap();
 
-    let mut function_parameters: Vec<(String, TypeString)> = vec![];
+    let mut function_parameters: Vec<(String, TypeLiteral)> = vec![];
     let function_parameters_raw = children.next().unwrap();
     function_parameters.append(&mut build_function_params_ast(function_parameters_raw));
 
     let return_type_raw = children.next().unwrap().as_str();
-    let function_return_type = parse_raw_type_string(return_type_raw);
+    let function_return_type = parse_type_literal(return_type_raw);
 
     let mut function_body: FunctionBody = build_function_body_ast(children.next().unwrap());
 
@@ -114,7 +114,7 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
     }
 }
 
-fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, TypeString)> {
+fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, TypeLiteral)> {
     match pair.as_rule() {
         Rule::FunctionParameters => {
             let mut children = pair.into_inner();
@@ -123,7 +123,7 @@ fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, 
             if children.len() == 0 {
                 vec![]
             } else {  
-                let mut function_parameters: Vec<(String, TypeString)> = vec![];  
+                let mut function_parameters: Vec<(String, TypeLiteral)> = vec![];  
 
                 for c in children {
                     match c.as_rule() {
@@ -132,7 +132,7 @@ fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, 
                             let param_name = params_parts.next().unwrap().as_str().parse::<String>().unwrap();
                             let param_type_raw = params_parts.next().unwrap().as_str();
 
-                            let param_type = parse_raw_type_string(param_type_raw);
+                            let param_type = parse_type_literal(param_type_raw);
                             
                             function_parameters.push((param_name, param_type));
                         },
@@ -295,12 +295,12 @@ fn debug_pair(pair: &pest::iterators::Pair<Rule>) {
     println!("=========");
 }
 
-fn parse_raw_type_string(type_string: &str) -> TypeString {
-    match type_string {
-        "Number" => TypeString::Number,
-        "Boolean" => TypeString::Boolean,
-        "String" => TypeString::String,
-        "Unit" => TypeString::Unit,
-        _ => todo!("Some type string has not been accounted for: {}", type_string)
+fn parse_type_literal(type_literal: &str) -> TypeLiteral {
+    match type_literal {
+        "Number" => TypeLiteral::Number,
+        "Boolean" => TypeLiteral::Boolean,
+        "String" => TypeLiteral::String,
+        "Unit" => TypeLiteral::Unit,
+        _ => todo!("Some type string has not been accounted for: {}", type_literal)
     }
 }
