@@ -7,7 +7,7 @@ use SymbolKind::*;
 pub struct Scope {
     pub scope_name: String,
     pub symbol_table: Vec<Symbol>, // Definitions in a scope available to itself and its children.
-    pub usages: Vec<Symbol>, // Symbol usages (variable references, function calls) found in this scope.
+    pub usages: Vec<Usage>, // Usages (variable references, function calls) found in this scope.
     pub inner_scopes: Vec<Scope>
 }
 
@@ -32,10 +32,23 @@ pub enum SymbolKind {
     FunctionParameter
 }
 
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct Usage {
+    pub symbol: String,
+    pub kind: UsageKind,
+    pub start_pos: Option<usize>
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub enum UsageKind {
+    Variable,
+    FunctionCall
+}
+
 pub fn build_program_scope(ast_node: &Program) -> Scope {
 
     let mut symbol_table: Vec<Symbol> = vec![];
-    let mut usages: Vec<Symbol> = vec![];
+    let mut usages: Vec<Usage> = vec![];
     let mut inner_scopes: Vec<Scope> = vec![];
     
     let statements = &ast_node.statements;
@@ -82,7 +95,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
 fn build_function_scope(function_definition_statement: &FunctionDefinitionStatement) -> Scope {
 
     let mut symbol_table: Vec<Symbol> = vec![];
-    let mut usages: Vec<Symbol> = vec![];
+    let mut usages: Vec<Usage> = vec![];
     let mut inner_scopes: Vec<Scope> = vec![];
 
     let parameters = &function_definition_statement.function_parameters;
@@ -144,15 +157,14 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
     }
 }
 
-fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
-    let mut usages: Vec<Symbol> = vec![];
+fn extract_usages(expression_node: &Expression) -> Vec<Usage> {
+    let mut usages: Vec<Usage> = vec![];
 
     match expression_node {
         Expression::Ident(identifier) => {
-            usages.push(Symbol {
+            usages.push(Usage {
                 symbol: identifier.identifier_name.to_owned(),
-                kind: Variable,
-                type_info: vec![],
+                kind: UsageKind::Variable,
                 start_pos: Some(identifier.start_pos)
             });
         },
@@ -216,10 +228,9 @@ fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
             usages.append(&mut extract_usages(&*&if_else_expression.false_branch));
         },
         Expression::FunctionCall(function_call) => {
-            usages.push(Symbol {
+            usages.push(Usage {
                 symbol: function_call.function_name.to_owned(),
-                kind: Function,
-                type_info: vec![],
+                kind: UsageKind::FunctionCall,
                 start_pos: None
             });
             let function_arguments = &function_call.function_arguments;
@@ -233,11 +244,11 @@ fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
     usages
 }
 
-fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
+fn usage_is_defined(usage: &Usage, symbol_table: &Vec<Symbol>) -> bool {
     println!("\nTesting for usage {:?} with the following symbol table:", usage);
 
     match usage.kind {
-        Variable => {
+        UsageKind::Variable => {
             symbol_table
             .iter()
             .filter(|s| {s.kind == Variable || s.kind == FunctionParameter})
@@ -251,13 +262,36 @@ fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
                 }
             )
         },
-        _ => {
+        UsageKind::FunctionCall => {
             symbol_table
             .iter()
             .map(|s| {println!("{:?}",s);s})
             .any(|s| usage.symbol == s.symbol)
-        }
+        },
     }
+
+    // match usage.kind {
+    //     Variable => {
+    //         symbol_table
+    //         .iter()
+    //         .filter(|s| {s.kind == Variable || s.kind == FunctionParameter})
+    //         .map(|s| {println!("\t{:?}",s);s})
+    //         .any(|s|
+    //             match s.kind {
+    //                 Variable => usage.symbol == s.symbol &&
+    //                     usage.start_pos.unwrap() > s.start_pos.unwrap(), // Make sure Variable is defined before usage.
+    //                 Function => unreachable!("Cannot check Variable usage against function!"),
+    //                 FunctionParameter => usage.symbol == s.symbol, // Make sure FunctionParameter is within scope.
+    //             }
+    //         )
+    //     },
+    //     _ => {
+    //         symbol_table
+    //         .iter()
+    //         .map(|s| {println!("{:?}",s);s})
+    //         .any(|s| usage.symbol == s.symbol)
+    //     }
+    // }
 
     
 }
