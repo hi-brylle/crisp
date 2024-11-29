@@ -214,11 +214,10 @@ fn usage_is_defined(usage: &Symbol, symbol_table: &Vec<Symbol>) -> bool {
             .any(|s|
                 match s.kind {
                     Variable => usage.symbol == s.symbol &&
-                        usage.start_pos.unwrap() > s.start_pos.unwrap(),
-                    Function => unreachable!("Cannot check usage against function!"),
-                    FunctionParameter => usage.symbol == s.symbol,
+                        usage.start_pos.unwrap() > s.start_pos.unwrap(), // Make sure Variable is defined before usage.
+                    Function => unreachable!("Cannot check Variable usage against function!"),
+                    FunctionParameter => usage.symbol == s.symbol, // Make sure FunctionParameter is within scope.
                 }
-                
             )
         },
         _ => {
