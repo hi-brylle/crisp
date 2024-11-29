@@ -46,7 +46,6 @@ pub enum UsageKind {
 }
 
 pub fn build_program_scope(ast_node: &Program) -> Scope {
-
     let mut symbol_table: Vec<Symbol> = vec![];
     let mut usages: Vec<Usage> = vec![];
     let mut inner_scopes: Vec<Scope> = vec![];
@@ -56,7 +55,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
         match s {
             AssignmentStmt(assignment) => {
                 symbol_table.push(Symbol {
-                    symbol: assignment.identifier.to_owned(),
+                    symbol: assignment.identifier.clone(),
                     kind: Variable,
                     type_info: match &assignment.type_annotation {
                         Some(type_literal) => vec![type_literal.clone()],
@@ -74,7 +73,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                 type_info.push(function_definition_statement.function_return_type.clone());
 
                 symbol_table.push(Symbol {
-                    symbol: function_definition_statement.function_name.to_owned(),
+                    symbol: function_definition_statement.function_name.clone(),
                     kind: Function,
                     type_info,
                     start_pos: None
@@ -85,7 +84,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
     }
 
     Scope {
-        scope_name: "(program)".to_owned(),
+        scope_name: "(program)".to_owned(), // TO-DO: this should be the file name
         symbol_table,
         usages,
         inner_scopes,
@@ -93,7 +92,6 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
 }
 
 fn build_function_scope(function_definition_statement: &FunctionDefinitionStatement) -> Scope {
-
     let mut symbol_table: Vec<Symbol> = vec![];
     let mut usages: Vec<Usage> = vec![];
     let mut inner_scopes: Vec<Scope> = vec![];
@@ -102,7 +100,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
 
     for (parameter, type_literal) in parameters {
         symbol_table.push(Symbol {
-            symbol: parameter.to_owned(),
+            symbol: parameter.clone(),
             kind: FunctionParameter,
             type_info: vec![type_literal.clone()],
             start_pos: None
@@ -114,7 +112,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
         match s {
             AssignmentStmt(assignment) => {
                 symbol_table.push(Symbol {
-                    symbol: assignment.identifier.to_owned(),
+                    symbol: assignment.identifier.clone(),
                     kind: Variable,
                     type_info: match &assignment.type_annotation {
                         Some(type_literal) => vec![type_literal.clone()],
@@ -131,7 +129,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
                 }
                 type_info.push(function_definition_statement.function_return_type.clone());
                 symbol_table.push(Symbol {
-                    symbol: function_definition_statement.function_name.to_owned(),
+                    symbol: function_definition_statement.function_name.clone(),
                     kind: Function,
                     type_info,
                     start_pos: None
@@ -150,7 +148,7 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
     }
 
     Scope {
-        scope_name: function_definition_statement.function_name.to_owned(),
+        scope_name: function_definition_statement.function_name.clone(),
         symbol_table,
         usages,
         inner_scopes,
@@ -163,7 +161,7 @@ fn extract_usages(expression_node: &Expression) -> Vec<Usage> {
     match expression_node {
         Expression::Ident(identifier) => {
             usages.push(Usage {
-                symbol: identifier.identifier_name.to_owned(),
+                symbol: identifier.identifier_name.clone(),
                 kind: UsageKind::Variable,
                 start_pos: Some(identifier.start_pos)
             });
@@ -229,7 +227,7 @@ fn extract_usages(expression_node: &Expression) -> Vec<Usage> {
         },
         Expression::FunctionCall(function_call) => {
             usages.push(Usage {
-                symbol: function_call.function_name.to_owned(),
+                symbol: function_call.function_name.clone(),
                 kind: UsageKind::FunctionCall,
                 start_pos: None
             });
@@ -269,31 +267,6 @@ fn usage_is_defined(usage: &Usage, symbol_table: &Vec<Symbol>) -> bool {
             .any(|s| usage.symbol == s.symbol)
         },
     }
-
-    // match usage.kind {
-    //     Variable => {
-    //         symbol_table
-    //         .iter()
-    //         .filter(|s| {s.kind == Variable || s.kind == FunctionParameter})
-    //         .map(|s| {println!("\t{:?}",s);s})
-    //         .any(|s|
-    //             match s.kind {
-    //                 Variable => usage.symbol == s.symbol &&
-    //                     usage.start_pos.unwrap() > s.start_pos.unwrap(), // Make sure Variable is defined before usage.
-    //                 Function => unreachable!("Cannot check Variable usage against function!"),
-    //                 FunctionParameter => usage.symbol == s.symbol, // Make sure FunctionParameter is within scope.
-    //             }
-    //         )
-    //     },
-    //     _ => {
-    //         symbol_table
-    //         .iter()
-    //         .map(|s| {println!("{:?}",s);s})
-    //         .any(|s| usage.symbol == s.symbol)
-    //     }
-    // }
-
-    
 }
 
 fn check_for_redeclarations(scope: &Scope) -> Vec<String> {
