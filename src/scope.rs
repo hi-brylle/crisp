@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::ast::{Expression, FunctionDefinitionStatement, Program, Statement::*};
+use crate::ast::{Expression, FunctionDefinitionStatement, Program, Statement::*, TypeLiteral};
 use SymbolKind::*;
 
 #[derive(Debug)]
@@ -15,6 +15,13 @@ pub struct Scope {
 pub struct Symbol {
     pub symbol: String,
     pub kind: SymbolKind,
+
+    // An empty vector means a variable with no type annotations or it's a usage,
+    // A singleton means a variable with an explicit type annotation, and
+    // A vector containing at least two type literals mean a function, with the
+    // final type literal being the function return type.
+    pub type_info: Vec<TypeLiteral>,
+
     pub start_pos: Option<usize>
 }
 
@@ -38,14 +45,25 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
                 symbol_table.push(Symbol {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
+                    type_info: match &assignment.type_annotation {
+                        Some(type_literal) => vec![type_literal.clone()],
+                        None => vec![],
+                    },
                     start_pos: Some(assignment.start_pos)
                 });
                 usages.append(&mut extract_usages(&assignment.rhs));
             },
             FunctionDefStmt(function_definition_statement) => {
+                let mut type_info: Vec<TypeLiteral> = vec![];
+                for (_, type_literal) in &function_definition_statement.function_parameters {
+                    type_info.push(type_literal.clone());                    
+                }
+                type_info.push(function_definition_statement.function_return_type.clone());
+
                 symbol_table.push(Symbol {
                     symbol: function_definition_statement.function_name.to_owned(),
                     kind: Function,
+                    type_info,
                     start_pos: None
                 });
                 inner_scopes.push(build_function_scope(&function_definition_statement));
@@ -69,10 +87,11 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
 
     let parameters = &function_definition_statement.function_parameters;
 
-    for (parameter, _) in parameters {
+    for (parameter, type_literal) in parameters {
         symbol_table.push(Symbol {
             symbol: parameter.to_owned(),
             kind: FunctionParameter,
+            type_info: vec![type_literal.clone()],
             start_pos: None
         });
     }
@@ -84,14 +103,24 @@ fn build_function_scope(function_definition_statement: &FunctionDefinitionStatem
                 symbol_table.push(Symbol {
                     symbol: assignment.identifier.to_owned(),
                     kind: Variable,
+                    type_info: match &assignment.type_annotation {
+                        Some(type_literal) => vec![type_literal.clone()],
+                        None => vec![],
+                    },
                     start_pos: Some(assignment.start_pos)
                 });
                 usages.append(&mut extract_usages(&assignment.rhs));
             },
             FunctionDefStmt(function_definition_statement) => {
+                let mut type_info: Vec<TypeLiteral> = vec![];
+                for (_, type_literal) in &function_definition_statement.function_parameters {
+                    type_info.push(type_literal.clone());                    
+                }
+                type_info.push(function_definition_statement.function_return_type.clone());
                 symbol_table.push(Symbol {
                     symbol: function_definition_statement.function_name.to_owned(),
                     kind: Function,
+                    type_info,
                     start_pos: None
                 });
                 inner_scopes.push(build_function_scope(&function_definition_statement));
@@ -123,6 +152,7 @@ fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
             usages.push(Symbol {
                 symbol: identifier.identifier_name.to_owned(),
                 kind: Variable,
+                type_info: vec![],
                 start_pos: Some(identifier.start_pos)
             });
         },
@@ -189,6 +219,7 @@ fn extract_usages(expression_node: &Expression) -> Vec<Symbol> {
             usages.push(Symbol {
                 symbol: function_call.function_name.to_owned(),
                 kind: Function,
+                type_info: vec![],
                 start_pos: None
             });
             let function_arguments = &function_call.function_arguments;

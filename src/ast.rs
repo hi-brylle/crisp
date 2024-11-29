@@ -31,7 +31,7 @@ pub struct FunctionBody {
     pub return_expression: Option<Expression>
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum TypeLiteral {
     Number,
     Boolean,
