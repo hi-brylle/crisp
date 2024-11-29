@@ -86,7 +86,7 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
     }
 }
 
-fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefinitionStatement {
+fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefinition {
     debug_pair(&pair);
 
     // Always contains fourthree items (even though some may actually be empty):
@@ -106,7 +106,7 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
 
     let mut function_body: FunctionBody = build_function_body_ast(children.next().unwrap());
 
-    FunctionDefinitionStatement {
+    FunctionDefinition {
         function_name,
         function_parameters,
         function_return_type,

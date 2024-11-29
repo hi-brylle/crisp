@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::ast::{Expression, FunctionDefinitionStatement, Program, Statement::*, TypeLiteral};
+use crate::ast::{Expression, FunctionDefinition, Program, Statement::*, TypeLiteral};
 use SymbolKind::*;
 
 #[derive(Debug)]
@@ -91,7 +91,7 @@ pub fn build_program_scope(ast_node: &Program) -> Scope {
     }
 }
 
-fn build_function_scope(function_definition_statement: &FunctionDefinitionStatement) -> Scope {
+fn build_function_scope(function_definition_statement: &FunctionDefinition) -> Scope {
     let mut symbol_table: Vec<Symbol> = vec![];
     let mut usages: Vec<Usage> = vec![];
     let mut inner_scopes: Vec<Scope> = vec![];
