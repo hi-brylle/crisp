@@ -12,7 +12,7 @@ pub enum Statement {
 #[derive(Debug)]
 pub struct Assignment {
     pub identifier: String,
-    pub type_annotation: TypeLiteral,
+    pub type_annotation: Option<TypeLiteral>,
     pub rhs: Expression,
     pub start_pos: usize
 }
@@ -33,7 +33,6 @@ pub struct FunctionBody {
 
 #[derive(Debug)]
 pub enum TypeLiteral {
-    Unspecified, // This is subject to type inference later.
     Number,
     Boolean,
     String,

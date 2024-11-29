@@ -63,21 +63,21 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
         
             Assignment {
                 identifier,
-                type_annotation: TypeLiteral::Unspecified,
+                type_annotation: None,
                 rhs,
                 start_pos
             }   
         },
         3 => {
             let identifier = children.next().unwrap().as_str().to_owned();
-            let type_string_raw = children.next().unwrap().as_str();
+            let raw_type_literal = children.next().unwrap().as_str();
             let rhs = build_expression_ast(children.next().unwrap());
         
-            let type_string: TypeLiteral = parse_type_literal(type_string_raw);
+            let type_literal: TypeLiteral = parse_type_literal(raw_type_literal);
 
             Assignment {
                 identifier,
-                type_annotation: type_string,
+                type_annotation: Some(type_literal),
                 rhs,
                 start_pos
             }            
