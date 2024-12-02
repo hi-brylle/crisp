@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::ast::{FunctionDefinition, Program, TypeLiteral, Statement::*};
+use crate::ast::{Expression::{self, *}, FunctionDefinition, Program, Statement::*, TypeLiteral};
 use crate::scope2::SymbolKind::*;
 
 enum Scope {
@@ -139,6 +139,132 @@ fn check_for_redeclarations(scope: &Scope) -> Vec<String> {
     }
     
     errors
+}
+
+fn extract_usages(expression_node: &Expression) -> Vec<Usage> {
+    let mut usages: Vec<Usage> = vec![];
+
+    match expression_node {
+        Ident(identifier) => {
+            usages.push(Usage {
+                symbol: identifier.identifier_name.clone(),
+                kind: UsageKind::Variable,
+                start_pos: Some(identifier.start_pos)
+            });
+        },
+        Negative(expression) => {
+            usages.append(&mut extract_usages(&**expression));
+        },
+        Plus(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        Minus(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        Times(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        Divide(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        IsEqual(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        NotEqual(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        LessThan(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        LessThanOrEqual(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        GreaterThan(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        GreaterThanOrEqual(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        Not(expression) => {
+            usages.append(&mut extract_usages(&**expression));
+        },
+        Or(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        And(expression, expression1) => {
+            usages.append(&mut extract_usages(&**expression));
+            usages.append(&mut extract_usages(&**expression1));
+        },
+        IfElseExpression(if_else_expression) => {
+            usages.append(&mut extract_usages(&*if_else_expression.predicate));
+            usages.append(&mut extract_usages(&*&if_else_expression.true_branch));
+            usages.append(&mut extract_usages(&*&if_else_expression.false_branch));
+        },
+        FunctionCall(function_call) => {
+            usages.push(Usage {
+                symbol: function_call.function_name.clone(),
+                kind: UsageKind::FunctionCall,
+                start_pos: None
+            });
+            let function_arguments = &function_call.function_arguments;
+            for args in function_arguments {
+                usages.append(&mut extract_usages(&args));
+            }
+        },
+        _ => {},
+    }
+
+    usages
+}
+
+fn get_level_usages(scope: &Scope) -> Vec<Usage> {
+    let mut usages: Vec<Usage> = vec![];
+
+    match scope {
+        Scope::ProgramScope(program) => {
+            let statements = &program.statements;
+            for s in statements {
+                match s {
+                    AssignmentStmt(assignment) => {
+                        usages.append(&mut extract_usages(&assignment.rhs));
+                    },
+                    FunctionDefStmt(_) => {},
+                }
+            }
+        },
+        Scope::FunctionScope(function_definition) => {
+            let statements = &function_definition.function_body.statements;
+            for s in statements {
+                match s {
+                    AssignmentStmt(assignment) => {
+                        usages.append(&mut extract_usages(&assignment.rhs));
+                    },
+                    FunctionDefStmt(function_definition_statement) => {},
+                }
+            }
+
+            let return_expression = &function_definition.function_body.return_expression;
+            match return_expression {
+                Some(return_expression) => {
+                    usages.append(&mut extract_usages(&return_expression));
+                },
+                None => {},
+            }
+        },
+    }
+
+    usages
 }
 
 fn usage_is_defined(usage: &Usage, symbol_table: &Vec<Symbol>) -> bool {
