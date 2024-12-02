@@ -16,6 +16,7 @@ pub struct GrammarParser;
 mod ast;
 mod parser;
 mod scope;
+mod scope2;
 
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
