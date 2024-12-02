@@ -1,7 +1,8 @@
 use std::collections::HashSet;
 
 use crate::ast::{Expression::{self, *}, FunctionDefinition, Program, Statement::*, TypeLiteral};
-use crate::scope::SymbolKind::*;
+use Scope::*;
+use SymbolKind::*;
 
 pub enum Scope<'a> {
     ProgramScope(&'a Program),
@@ -12,13 +13,6 @@ pub enum Scope<'a> {
 pub struct Symbol {
     pub symbol: String,
     pub kind: SymbolKind,
-
-    // An empty vector means a variable with no type annotations or it's a usage,
-    // A singleton means a variable with an explicit type annotation, and
-    // A vector containing at least two type literals mean a function, with the
-    // final type literal being the function return type.
-    pub type_info: Vec<TypeLiteral>,
-
     pub start_pos: Option<usize>
 }
 
@@ -44,8 +38,8 @@ enum UsageKind {
 
 fn get_scope_name(scope: &Scope) -> String {
     match scope {
-        Scope::ProgramScope(_) => String::from("(program)"),
-        Scope::FunctionScope(function_definition) => function_definition.function_name.clone(),
+        ProgramScope(_) => String::from("(program)"),
+        FunctionScope(function_definition) => function_definition.function_name.clone(),
     }
 }
 
@@ -53,7 +47,7 @@ fn get_level_symbol_table(scope: &Scope) -> Vec<Symbol> {
     let mut symbol_table: Vec<Symbol> = vec![];
 
     match scope {
-        Scope::ProgramScope(program) => {
+        ProgramScope(program) => {
             let statements = &program.statements;
             for s in statements {
                 match s {
@@ -61,37 +55,25 @@ fn get_level_symbol_table(scope: &Scope) -> Vec<Symbol> {
                         symbol_table.push(Symbol {
                             symbol: assignment.identifier.clone(),
                             kind: Variable,
-                            type_info: match &assignment.type_annotation {
-                                Some(type_literal) => vec![type_literal.clone()],
-                                None => vec![],
-                            },
                             start_pos: Some(assignment.start_pos)
                         });
                     },
                     FunctionDefStmt(function_definition_statement) => {
-                        let mut type_info: Vec<TypeLiteral> = vec![];
-                        for (_, type_literal) in &function_definition_statement.function_parameters {
-                            type_info.push(type_literal.clone());                    
-                        }
-                        type_info.push(function_definition_statement.function_return_type.clone());
-        
                         symbol_table.push(Symbol {
                             symbol: function_definition_statement.function_name.clone(),
                             kind: Function,
-                            type_info,
                             start_pos: None
                         });
                     },
                 }
             }
         },
-        Scope::FunctionScope(function_definition) => {
+        FunctionScope(function_definition) => {
             let parameters = &function_definition.function_parameters;
-            for (parameter, type_literal) in parameters {
+            for (parameter, _) in parameters {
                 symbol_table.push(Symbol {
                     symbol: parameter.clone(),
                     kind: FunctionParameter,
-                    type_info: vec![type_literal.clone()],
                     start_pos: None
                 });
             }
@@ -103,23 +85,13 @@ fn get_level_symbol_table(scope: &Scope) -> Vec<Symbol> {
                         symbol_table.push(Symbol {
                             symbol: assignment.identifier.clone(),
                             kind: Variable,
-                            type_info: match &assignment.type_annotation {
-                                Some(type_literal) => vec![type_literal.clone()],
-                                None => vec![],
-                            },
                             start_pos: Some(assignment.start_pos)
                         });
                     },
                     FunctionDefStmt(function_definition_statement) => {
-                        let mut type_info: Vec<TypeLiteral> = vec![];
-                        for (_, type_literal) in &function_definition_statement.function_parameters {
-                            type_info.push(type_literal.clone());                    
-                        }
-                        type_info.push(function_definition_statement.function_return_type.clone());
                         symbol_table.push(Symbol {
                             symbol: function_definition_statement.function_name.clone(),
                             kind: Function,
-                            type_info,
                             start_pos: None
                         });
                     },
@@ -235,7 +207,7 @@ fn get_level_usages(scope: &Scope) -> Vec<Usage> {
     let mut usages: Vec<Usage> = vec![];
 
     match scope {
-        Scope::ProgramScope(program) => {
+        ProgramScope(program) => {
             let statements = &program.statements;
             for s in statements {
                 match s {
@@ -246,7 +218,7 @@ fn get_level_usages(scope: &Scope) -> Vec<Usage> {
                 }
             }
         },
-        Scope::FunctionScope(function_definition) => {
+        FunctionScope(function_definition) => {
             let statements = &function_definition.function_body.statements;
             for s in statements {
                 match s {
@@ -327,24 +299,24 @@ pub fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>)
     }
 
     match scope {
-        Scope::ProgramScope(program) => {
+        ProgramScope(program) => {
             let statements = &program.statements;
             for s in statements {
                 match s {
                     AssignmentStmt(_) => {},
                     FunctionDefStmt(function_definition) => {
-                        errors.append(&mut name_resolution(&Scope::FunctionScope(function_definition), symbol_table_stack));
+                        errors.append(&mut name_resolution(&FunctionScope(function_definition), symbol_table_stack));
                     },
                 }
             }
         },
-        Scope::FunctionScope(function_definition) => {
+        FunctionScope(function_definition) => {
             let statements = &function_definition.function_body.statements;
             for s in statements {
                 match s {
                     AssignmentStmt(_) => {},
                     FunctionDefStmt(function_definition) => {
-                        errors.append(&mut name_resolution(&Scope::FunctionScope(function_definition), symbol_table_stack));
+                        errors.append(&mut name_resolution(&FunctionScope(function_definition), symbol_table_stack));
                     },
                 }
             }

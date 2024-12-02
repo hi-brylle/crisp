@@ -22,7 +22,7 @@ fn main() {
 
     let frontend_result = 
         parse_source(src)
-        .and_then(resolve_usages);
+        .and_then(resolve_names);
 
     match frontend_result {
         Ok(ast) => {
@@ -51,7 +51,7 @@ fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
     }
 }
 
-fn resolve_usages(program_ast: Program) -> Result<ast::Program, Vec<String>>{
+fn resolve_names(program_ast: Program) -> Result<ast::Program, Vec<String>>{
     let resolution_errors = name_resolution(&ProgramScope(&program_ast), &mut vec![]);
     if resolution_errors.is_empty() {
         Ok(program_ast)
