@@ -3,12 +3,12 @@ use std::collections::HashSet;
 use crate::ast::{Expression::{self, *}, FunctionDefinition, Program, Statement::*, TypeLiteral};
 use crate::scope2::SymbolKind::*;
 
-enum Scope {
-    ProgramScope(Program),
-    FunctionScope(FunctionDefinition)
+enum Scope<'a> {
+    ProgramScope(&'a Program),
+    FunctionScope(&'a FunctionDefinition)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Symbol {
     pub symbol: String,
     pub kind: SymbolKind,
@@ -22,7 +22,7 @@ struct Symbol {
     pub start_pos: Option<usize>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 enum SymbolKind {
     Variable,
     Function,
@@ -40,6 +40,13 @@ struct Usage {
 enum UsageKind {
     Variable,
     FunctionCall
+}
+
+fn get_scope_name(scope: &Scope) -> String {
+    match scope {
+        Scope::ProgramScope(_) => String::from("(program)"),
+        Scope::FunctionScope(function_definition) => function_definition.function_name.clone(),
+    }
 }
 
 fn get_level_symbol_table(scope: &Scope) -> Vec<Symbol> {
@@ -128,13 +135,9 @@ fn check_for_redeclarations(scope: &Scope) -> Vec<String> {
     let mut errors: Vec<String> = vec![];
     let mut temp: HashSet<String> = HashSet::new();
     let symbol_table = get_level_symbol_table(scope);
-    let scope_name = match scope {
-        Scope::ProgramScope(_) => String::from("(program)"),
-        Scope::FunctionScope(function_definition) => function_definition.function_name.clone(),
-    };
     for symbol in symbol_table {
         if !temp.insert(symbol.symbol.clone()) {
-            errors.push(format!("{:?} \"{}\" redeclared in \"{}\" scope.", symbol.kind, symbol.symbol, scope_name));
+            errors.push(format!("{:?} \"{}\" redeclared in \"{}\" scope.", symbol.kind, symbol.symbol, get_scope_name(&scope)));
         }
     }
     
@@ -292,5 +295,62 @@ fn usage_is_defined(usage: &Usage, symbol_table: &Vec<Symbol>) -> bool {
             .any(|s| usage.symbol == s.symbol)
         },
     }
+}
+
+fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
+    let mut errors: Vec<String> = vec![];
+
+    errors.append(&mut check_for_redeclarations(&scope));
+
+    // Push symbol tables into this stack for use in inner scopes.
+    symbol_table_stack.push(get_level_symbol_table(&scope));
+
+    for usage in &get_level_usages(scope) {
+        // Clone the symbol table stack because checking for valid usages
+        // requires popping of the stack indenpendently per usage.
+        let mut symbol_table_stack_copy = symbol_table_stack.clone();
+
+        loop {
+            let innermost_symbol_table = symbol_table_stack_copy.pop();
+            match innermost_symbol_table {
+                Some(innermost_symbol_table) => {
+                    if usage_is_defined(usage, &innermost_symbol_table) {
+                        break;
+                    }
+                },
+                None => {
+                    errors.push(format!("{:?} \"{}\" not defined in \"{}\" scope and beyond.", usage.kind, usage.symbol, get_scope_name(&scope)));
+                    break;
+                },
+            }
+        }
+    }
+
+    match scope {
+        Scope::ProgramScope(program) => {
+            let statements = &program.statements;
+            for s in statements {
+                match s {
+                    AssignmentStmt(assignment) => {},
+                    FunctionDefStmt(function_definition) => {
+                        errors.append(&mut name_resolution(&Scope::FunctionScope(function_definition), symbol_table_stack));
+                    },
+                }
+            }
+        },
+        Scope::FunctionScope(function_definition) => {
+            let statements = &function_definition.function_body.statements;
+            for s in statements {
+                match s {
+                    AssignmentStmt(assignment) => {},
+                    FunctionDefStmt(function_definition) => {
+                        errors.append(&mut name_resolution(&Scope::FunctionScope(function_definition), symbol_table_stack));
+                    },
+                }
+            }
+        },
+    }
+
+    errors
 }
 
