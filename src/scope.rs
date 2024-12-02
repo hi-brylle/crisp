@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::ast::{Expression::{self, *}, FunctionDefinition, Program, Statement::*, TypeLiteral};
-use crate::scope2::SymbolKind::*;
+use crate::scope::SymbolKind::*;
 
 pub enum Scope<'a> {
     ProgramScope(&'a Program),
@@ -253,7 +253,7 @@ fn get_level_usages(scope: &Scope) -> Vec<Usage> {
                     AssignmentStmt(assignment) => {
                         usages.append(&mut extract_usages(&assignment.rhs));
                     },
-                    FunctionDefStmt(function_definition_statement) => {},
+                    FunctionDefStmt(_) => {},
                 }
             }
 
@@ -331,7 +331,7 @@ pub fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>)
             let statements = &program.statements;
             for s in statements {
                 match s {
-                    AssignmentStmt(assignment) => {},
+                    AssignmentStmt(_) => {},
                     FunctionDefStmt(function_definition) => {
                         errors.append(&mut name_resolution(&Scope::FunctionScope(function_definition), symbol_table_stack));
                     },
@@ -342,7 +342,7 @@ pub fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>)
             let statements = &function_definition.function_body.statements;
             for s in statements {
                 match s {
-                    AssignmentStmt(assignment) => {},
+                    AssignmentStmt(_) => {},
                     FunctionDefStmt(function_definition) => {
                         errors.append(&mut name_resolution(&Scope::FunctionScope(function_definition), symbol_table_stack));
                     },

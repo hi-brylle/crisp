@@ -6,8 +6,8 @@ use pest::Parser;
 use pest_derive::Parser;
 
 use ast::Program;
-use scope2::name_resolution;
-use scope2::Scope::*;
+use scope::name_resolution;
+use scope::Scope::*;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -15,7 +15,7 @@ pub struct GrammarParser;
 
 mod ast;
 mod parser;
-mod scope2;
+mod scope;
 
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
