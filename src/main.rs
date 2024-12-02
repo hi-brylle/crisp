@@ -6,8 +6,6 @@ use pest::Parser;
 use pest_derive::Parser;
 
 use ast::Program;
-use scope::build_program_scope;
-use scope::scope_resolution;
 use scope2::name_resolution;
 use scope2::Scope::*;
 
@@ -17,7 +15,6 @@ pub struct GrammarParser;
 
 mod ast;
 mod parser;
-mod scope;
 mod scope2;
 
 fn main() {
@@ -55,10 +52,6 @@ fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
 }
 
 fn resolve_usages(program_ast: Program) -> Result<ast::Program, Vec<String>>{
-    let program_scope = build_program_scope(&program_ast);
-    println!("Program scope:\n{:?}\n", program_scope);
-
-    // let resolution_errors = scope_resolution(&program_scope, &mut vec![]);
     let resolution_errors = name_resolution(&ProgramScope(&program_ast), &mut vec![]);
     if resolution_errors.is_empty() {
         Ok(program_ast)
