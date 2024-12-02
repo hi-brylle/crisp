@@ -3,13 +3,13 @@ use std::collections::HashSet;
 use crate::ast::{Expression::{self, *}, FunctionDefinition, Program, Statement::*, TypeLiteral};
 use crate::scope2::SymbolKind::*;
 
-enum Scope<'a> {
+pub enum Scope<'a> {
     ProgramScope(&'a Program),
     FunctionScope(&'a FunctionDefinition)
 }
 
 #[derive(Debug, Clone)]
-struct Symbol {
+pub struct Symbol {
     pub symbol: String,
     pub kind: SymbolKind,
 
@@ -23,7 +23,7 @@ struct Symbol {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-enum SymbolKind {
+pub enum SymbolKind {
     Variable,
     Function,
     FunctionParameter
@@ -297,7 +297,7 @@ fn usage_is_defined(usage: &Usage, symbol_table: &Vec<Symbol>) -> bool {
     }
 }
 
-fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
+pub fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
     let mut errors: Vec<String> = vec![];
 
     errors.append(&mut check_for_redeclarations(&scope));
