@@ -1,12 +1,13 @@
-use crate::ast::{Assignment, FunctionDefinition, Program, Statement::*};
+use crate::ast::{Assignment, FunctionDefinition, Program, Statement::*, TypeLiteral};
 
 #[derive(Debug)]
 pub struct SymbolTable {
-    pub symbol_table: Vec<(String, Symbol)>
+    pub symbol_table: Vec<Symbol>
 }
 
 #[derive(Debug)]
-struct Symbol {
+pub struct Symbol {
+    pub scope_address: String,
     pub symbol: String,
     pub kind: SymbolKind,
 }
@@ -14,11 +15,12 @@ struct Symbol {
 #[derive(Debug)]
 enum SymbolKind {
     Variable(usize),
-    FunctionDefinition
+    FunctionDefinition,
+    FunctionParameter(TypeLiteral)
 }
 
 pub fn build_program_symbol_table(program: &Program) -> SymbolTable {
-    let mut symbol_table: Vec<(String, Symbol)> = vec![];
+    let mut symbol_table: Vec<Symbol> = vec![];
 
     for statement in &program.statements {
         match statement {
@@ -36,25 +38,32 @@ pub fn build_program_symbol_table(program: &Program) -> SymbolTable {
     }
 }
 
-fn build_assignment_symbol_table(assignment: &Assignment) -> Vec<(String, Symbol)> {
-    vec![(
-        assignment.scope_address.clone(),
+fn build_assignment_symbol_table(assignment: &Assignment) -> Vec<Symbol> {
+    vec![
         Symbol {
+            scope_address: assignment.scope_address.clone(),
             symbol: assignment.identifier.clone(),
             kind: SymbolKind::Variable(assignment.start_pos),
         }
-    )]
+    ]
 }
 
-fn build_function_def_symbol_table(function_definition: &FunctionDefinition) -> Vec<(String, Symbol)> {
-    let mut symbol_table: Vec<(String, Symbol)> = vec![];
+fn build_function_def_symbol_table(function_definition: &FunctionDefinition) -> Vec<Symbol> {
+    let mut symbol_table: Vec<Symbol> = vec![];
 
-    symbol_table.push((function_definition.scope_address.clone(),
-        Symbol {
-            symbol: function_definition.function_name.clone(),
-            kind: SymbolKind::FunctionDefinition,
-        })
-    );
+    symbol_table.push(Symbol {
+        scope_address: function_definition.scope_address.clone(),
+        symbol: function_definition.function_name.clone(),
+        kind: SymbolKind::FunctionDefinition,
+    });
+
+    for parameter in &function_definition.function_parameters {
+        symbol_table.push(Symbol {
+            scope_address: parameter.scope_address.clone(),
+            symbol: parameter.parameter_name.clone(),
+            kind: SymbolKind::FunctionParameter(parameter.parameter_type.clone()),
+        });
+    }
 
     for statement in &function_definition.function_body.statements {
         match statement {
