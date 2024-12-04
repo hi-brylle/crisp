@@ -1,5 +1,6 @@
 fun add(addend1: Number, addend2: Number): Number {
-    return (+ addend1 addend2)
+    let temp = (+ addend1 addend2);
+    return temp
 };
 
 let sum = (add 42 69);

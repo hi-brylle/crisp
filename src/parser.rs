@@ -38,14 +38,14 @@ fn build_statement_ast(parent_scope_address: &str, pair: pest::iterators::Pair<R
 
     // Always contains one item: the type of the Statement.
     let mut children = pair.into_inner();
-    let only_child = children.next().unwrap();
+    let only_child: pest::iterators::Pair<'_, Rule> = children.next().unwrap();
     
     match only_child.as_rule() {
         Rule::Assignment => { 
             Statement::AssignmentStmt(build_assignment_ast(parent_scope_address, only_child))
         },
         Rule::FunctionDefinition => {
-            Statement::FunctionDefStmt(build_function_def_ast(only_child))
+            Statement::FunctionDefStmt(build_function_def_ast(parent_scope_address, only_child))
         }
         _ => todo!("Handle other Statement types! (found {:?})", only_child.as_rule())
     } 
@@ -94,7 +94,7 @@ fn build_assignment_ast(parent_scope_address: &str, pair: pest::iterators::Pair<
     }
 }
 
-fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefinition {
+fn build_function_def_ast(parent_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> FunctionDefinition {
     debug_pair(&pair);
 
     // Always contains fourthree items (even though some may actually be empty):
@@ -104,10 +104,11 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
     println!("\nFunction def debug, children of length {}: {:?}\n", children.len(), children);
 
     let function_name = children.next().unwrap().as_str().parse::<String>().unwrap();
+    let scope_address= parent_scope_address.to_owned() + "::" + &function_name.to_owned();
 
     let mut function_parameters: Vec<FunctionParameter> = vec![];
     let function_parameters_raw = children.next().unwrap();
-    function_parameters.append(&mut build_function_params_ast(function_parameters_raw));
+    function_parameters.append(&mut build_function_params_ast(&scope_address, function_parameters_raw));
 
     let return_type_raw = children.next().unwrap().as_str();
     let function_return_type = parse_type_literal(return_type_raw);
@@ -115,6 +116,7 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
     let mut function_body: FunctionBody = build_function_body_ast(&function_name, children.next().unwrap());
 
     FunctionDefinition {
+        scope_address,
         function_name,
         function_parameters,
         function_return_type,
@@ -122,7 +124,7 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
     }
 }
 
-fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<FunctionParameter> {
+fn build_function_params_ast(function_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> Vec<FunctionParameter> {
     match pair.as_rule() {
         Rule::FunctionParameters => {
             let mut children = pair.into_inner();
@@ -143,6 +145,7 @@ fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<FunctionP
                             let parameter_type = parse_type_literal(param_type_raw);
                             
                             function_parameters.push(FunctionParameter {
+                                scope_address: function_scope_address.to_owned() + "::" + &parameter_name.to_owned(),
                                 parameter_name,
                                 parameter_type,
                             });
