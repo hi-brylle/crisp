@@ -113,7 +113,7 @@ fn build_function_def_ast(parent_scope_address: &str, pair: pest::iterators::Pai
     let return_type_raw = children.next().unwrap().as_str();
     let function_return_type = parse_type_literal(return_type_raw);
 
-    let mut function_body: FunctionBody = build_function_body_ast(&function_name, children.next().unwrap());
+    let mut function_body: FunctionBody = build_function_body_ast(&scope_address, children.next().unwrap());
 
     FunctionDefinition {
         scope_address,
