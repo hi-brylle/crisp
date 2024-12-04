@@ -14,7 +14,7 @@ pub struct Symbol {
 
 #[derive(Debug)]
 enum SymbolKind {
-    Variable(usize),
+    VariableDeclaration(usize),
     FunctionDefinition,
     FunctionParameter(TypeLiteral)
 }
@@ -43,7 +43,7 @@ fn build_assignment_symbol_table(assignment: &Assignment) -> Vec<Symbol> {
         Symbol {
             scope_address: assignment.scope_address.clone(),
             symbol: assignment.identifier.clone(),
-            kind: SymbolKind::Variable(assignment.start_pos),
+            kind: SymbolKind::VariableDeclaration(assignment.start_pos),
         }
     ]
 }
