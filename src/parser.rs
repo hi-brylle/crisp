@@ -101,7 +101,7 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
 
     let function_name = children.next().unwrap().as_str().parse::<String>().unwrap();
 
-    let mut function_parameters: Vec<(String, TypeLiteral)> = vec![];
+    let mut function_parameters: Vec<FunctionParameter> = vec![];
     let function_parameters_raw = children.next().unwrap();
     function_parameters.append(&mut build_function_params_ast(function_parameters_raw));
 
@@ -118,7 +118,7 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
     }
 }
 
-fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, TypeLiteral)> {
+fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<FunctionParameter> {
     match pair.as_rule() {
         Rule::FunctionParameters => {
             let mut children = pair.into_inner();
@@ -127,18 +127,21 @@ fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<(String, 
             if children.len() == 0 {
                 vec![]
             } else {  
-                let mut function_parameters: Vec<(String, TypeLiteral)> = vec![];  
+                let mut function_parameters: Vec<FunctionParameter> = vec![];  
 
                 for c in children {
                     match c.as_rule() {
                         Rule::FunctionParameter => {
                             let mut params_parts = c.into_inner();
-                            let param_name = params_parts.next().unwrap().as_str().parse::<String>().unwrap();
+                            let parameter_name = params_parts.next().unwrap().as_str().parse::<String>().unwrap();
                             let param_type_raw = params_parts.next().unwrap().as_str();
 
-                            let param_type = parse_type_literal(param_type_raw);
+                            let parameter_type = parse_type_literal(param_type_raw);
                             
-                            function_parameters.push((param_name, param_type));
+                            function_parameters.push(FunctionParameter {
+                                parameter_name,
+                                parameter_type,
+                            });
                         },
                         _ => unreachable!("Expecting FunctionParameter here! (found {:?})", c.as_rule())
                     }

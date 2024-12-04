@@ -80,9 +80,9 @@ fn get_level_symbol_table(scope: &Scope) -> Vec<Symbol> {
         },
         FunctionScope(function_definition) => {
             let parameters = &function_definition.function_parameters;
-            for (parameter, _) in parameters {
+            for parameter in parameters {
                 symbol_table.push(Symbol {
-                    symbol: parameter.clone(),
+                    symbol: parameter.parameter_name.clone(),
                     kind: FunctionParameter,
                     start_pos: None
                 });

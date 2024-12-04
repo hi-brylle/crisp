@@ -20,9 +20,15 @@ pub struct Assignment {
 #[derive(Debug)]
 pub struct FunctionDefinition {
     pub function_name: String,
-    pub function_parameters: Vec<(String, TypeLiteral)>,
+    pub function_parameters: Vec<FunctionParameter>,
     pub function_return_type: TypeLiteral,
     pub function_body: FunctionBody
+}
+
+#[derive(Debug)]
+pub struct FunctionParameter {
+    pub parameter_name: String,
+    pub parameter_type: TypeLiteral
 }
 
 #[derive(Debug)]
