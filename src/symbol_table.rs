@@ -2,21 +2,24 @@ use std::collections::HashMap;
 
 use crate::ast::{FunctionDefinition, Program, Statement::*};
 
-struct SymbolTable {
+#[derive(Debug)]
+pub struct SymbolTable {
     pub symbol_table: HashMap<String, Symbol>
 }
 
+#[derive(Debug)]
 struct Symbol {
     pub symbol: String,
     pub kind: SymbolKind,
 }
 
+#[derive(Debug)]
 enum SymbolKind {
     Variable(usize),
     FunctionDefinition
 }
 
-fn build_program_symbol_table(program: &Program) -> SymbolTable {
+pub fn build_program_symbol_table(program: &Program) -> SymbolTable {
     let mut symbol_table: HashMap<String, Symbol> = HashMap::new();
 
     for statement in &program.statements {

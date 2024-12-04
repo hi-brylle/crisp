@@ -9,6 +9,7 @@ use ast::Program;
 use scope::name_resolution;
 use scope::Scope::*;
 use scope::NameResolutionErrorKind::*;
+use symbol_table::build_program_symbol_table;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -57,6 +58,7 @@ fn resolve_names(program_ast: Program) -> Result<ast::Program, Vec<String>>{
     let resolution_errors = name_resolution(&ProgramScope(&program_ast), &mut vec![]);
 
     if resolution_errors.is_empty() {
+        println!("\nGLOBAL SYMBOL TABLE: {:?}\n", build_program_symbol_table(&program_ast));
         Ok(program_ast)
     } else {
         Err(resolution_errors
