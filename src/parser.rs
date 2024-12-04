@@ -3,6 +3,7 @@ use crate::{ast::*, Rule};
 pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
     debug_pair(&pair);
     
+    let scope_address = "(program)";
     let mut statements: Vec<Statement> = vec![];
 
     match pair.as_rule() {
@@ -27,7 +28,8 @@ pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
     }
 
     Program {
-        statements
+        statements,
+        scope_address: scope_address.to_string()
     }
 }
 

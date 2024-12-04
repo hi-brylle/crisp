@@ -1,6 +1,8 @@
 #[derive(Debug)]
 pub struct Program {
-    pub statements: Vec<Statement>
+    pub statements: Vec<Statement>,
+
+    pub scope_address: String
 }
 
 #[derive(Debug)]
