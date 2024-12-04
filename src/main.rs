@@ -8,6 +8,7 @@ use pest_derive::Parser;
 use ast::Program;
 use scope::name_resolution;
 use scope::Scope::*;
+use scope::NameResolutionErrorKind::*;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -53,9 +54,21 @@ fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
 
 fn resolve_names(program_ast: Program) -> Result<ast::Program, Vec<String>>{
     let resolution_errors = name_resolution(&ProgramScope(&program_ast), &mut vec![]);
+
     if resolution_errors.is_empty() {
         Ok(program_ast)
     } else {
-        Err(resolution_errors)
+        Err(resolution_errors
+            .into_iter()
+            .map(|resolution_error|
+                match resolution_error.error_kind {
+                    Redeclaration(symbol) => {
+                        format!("{:?} \"{}\" redeclared in \"{}\" scope.", symbol.kind, symbol.symbol, resolution_error.scope_name)
+                    },
+                    Undefined(usage) => {
+                        format!("{:?} \"{}\" not defined in \"{}\" scope and beyond.", usage.kind, usage.symbol, resolution_error.scope_name)
+                    },
+                }
+            ).collect())
     }
 }

@@ -23,17 +23,27 @@ pub enum SymbolKind {
     FunctionParameter
 }
 
-#[derive(Debug)]
-struct Usage {
+#[derive(Debug, Clone)]
+pub struct Usage {
     pub symbol: String,
     pub kind: UsageKind,
     pub start_pos: Option<usize>
 }
 
-#[derive(Debug)]
-enum UsageKind {
+#[derive(Debug, Clone)]
+pub enum UsageKind {
     Variable,
     FunctionCall
+}
+
+pub struct NameResolutionError {
+    pub scope_name: String,
+    pub error_kind: NameResolutionErrorKind
+}
+
+pub enum NameResolutionErrorKind {
+    Redeclaration(Symbol),
+    Undefined(Usage)
 }
 
 fn get_scope_name(scope: &Scope) -> String {
@@ -103,13 +113,16 @@ fn get_level_symbol_table(scope: &Scope) -> Vec<Symbol> {
     symbol_table
 }
 
-fn check_for_redeclarations(scope: &Scope) -> Vec<String> {
-    let mut errors: Vec<String> = vec![];
+fn check_for_redeclarations(scope: &Scope) -> Vec<NameResolutionError> {
+    let mut errors: Vec<NameResolutionError> = vec![];
     let mut temp: HashSet<String> = HashSet::new();
     let symbol_table = get_level_symbol_table(scope);
     for symbol in symbol_table {
         if !temp.insert(symbol.symbol.clone()) {
-            errors.push(format!("{:?} \"{}\" redeclared in \"{}\" scope.", symbol.kind, symbol.symbol, get_scope_name(&scope)));
+            errors.push(NameResolutionError {
+                scope_name: get_scope_name(&scope),
+                error_kind: NameResolutionErrorKind::Redeclaration(symbol),
+            });
         }
     }
     
@@ -269,8 +282,8 @@ fn usage_is_defined(usage: &Usage, symbol_table: &Vec<Symbol>) -> bool {
     }
 }
 
-pub fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<String> {
-    let mut errors: Vec<String> = vec![];
+pub fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>) -> Vec<NameResolutionError> {
+    let mut errors: Vec<NameResolutionError> = vec![];
 
     errors.append(&mut check_for_redeclarations(&scope));
 
@@ -291,7 +304,10 @@ pub fn name_resolution(scope: &Scope, symbol_table_stack: &mut Vec<Vec<Symbol>>)
                     }
                 },
                 None => {
-                    errors.push(format!("{:?} \"{}\" not defined in \"{}\" scope and beyond.", usage.kind, usage.symbol, get_scope_name(&scope)));
+                    errors.push(NameResolutionError {
+                        scope_name: get_scope_name(&scope),
+                        error_kind: NameResolutionErrorKind::Undefined(usage.clone()),
+                    });
                     break;
                 },
             }
