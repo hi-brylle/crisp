@@ -17,6 +17,7 @@ pub struct GrammarParser;
 mod ast;
 mod parser;
 mod scope;
+mod symbol_table;
 
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
