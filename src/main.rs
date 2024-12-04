@@ -10,6 +10,7 @@ use scope::name_resolution;
 use scope::Scope::*;
 use scope::NameResolutionErrorKind::*;
 use symbol_table::build_program_symbol_table;
+use symbol_table::SymbolTable;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -23,9 +24,13 @@ mod symbol_table;
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
 
+    // let frontend_result = 
+    //     parse_source(src)
+    //     .and_then(resolve_names);
+
     let frontend_result = 
         parse_source(src)
-        .and_then(resolve_names);
+        .and_then(to_symbol_table);
 
     match frontend_result {
         Ok(ast) => {
@@ -52,6 +57,10 @@ fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
             Err(vec![format!("Parse error: {:?}", e)])
         },
     }
+}
+
+fn to_symbol_table(program_ast: Program) -> Result<SymbolTable, Vec<String>> {
+    Ok(build_program_symbol_table(&program_ast))
 }
 
 fn resolve_names(program_ast: Program) -> Result<ast::Program, Vec<String>>{

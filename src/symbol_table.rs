@@ -4,7 +4,7 @@ use crate::ast::{FunctionDefinition, Program, Statement::*};
 
 #[derive(Debug)]
 pub struct SymbolTable {
-    pub symbol_table: HashMap<String, Symbol>
+    pub symbol_table: Vec<(String, Symbol)>
 }
 
 #[derive(Debug)]
@@ -20,21 +20,21 @@ enum SymbolKind {
 }
 
 pub fn build_program_symbol_table(program: &Program) -> SymbolTable {
-    let mut symbol_table: HashMap<String, Symbol> = HashMap::new();
+    let mut symbol_table: Vec<(String, Symbol)> = vec![];
 
     for statement in &program.statements {
         match statement {
             AssignmentStmt(assignment) => {
                 symbol_table
-                    .entry(assignment.scope_address.clone())
-                    .or_insert(Symbol {
-                        symbol: assignment.identifier.clone(),
-                        kind: SymbolKind::Variable(assignment.start_pos),
-                    });
-
+                    .push((assignment.scope_address.clone(),
+                        Symbol {
+                            symbol: assignment.identifier.clone(),
+                            kind: SymbolKind::Variable(assignment.start_pos),
+                        })
+                    )
             },
             FunctionDefStmt(function_definition) => {
-                symbol_table.extend(build_function_def_symbol_table(function_definition));
+                symbol_table.append(&mut build_function_def_symbol_table(function_definition));
             },
         }
     }
