@@ -51,6 +51,7 @@ pub enum TypeLiteral {
 
 #[derive(Debug)]
 pub struct ExpressionTerm {
+    pub enclosing_scope_address: String,
     pub expression: Expression
 }
 

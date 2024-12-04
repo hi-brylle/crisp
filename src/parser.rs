@@ -62,6 +62,7 @@ fn build_assignment_ast(parent_scope_address: &str, pair: pest::iterators::Pair<
         2 => {
             let identifier = children.next().unwrap().as_str().to_owned();
             let rhs = ExpressionTerm {
+                enclosing_scope_address: parent_scope_address.to_owned() + "::" + &identifier.to_owned(),
                 expression: build_expression_ast(children.next().unwrap())
             };
         
@@ -77,6 +78,7 @@ fn build_assignment_ast(parent_scope_address: &str, pair: pest::iterators::Pair<
             let identifier = children.next().unwrap().as_str().to_owned();
             let raw_type_literal = children.next().unwrap().as_str();
             let rhs =  ExpressionTerm {
+                enclosing_scope_address: parent_scope_address.to_owned() + "::" + &identifier.to_owned(),
                 expression: build_expression_ast(children.next().unwrap())
             };
         
@@ -184,6 +186,7 @@ fn build_function_body_ast(function_scope_address: &str, pair: pest::iterators::
                         },
                         Rule::Expression => {
                             return_expression = Some(ExpressionTerm {
+                                enclosing_scope_address: function_scope_address.to_owned(),
                                 expression: build_expression_ast(c),
                             })
                         },
