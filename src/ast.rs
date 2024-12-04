@@ -13,7 +13,7 @@ pub enum Statement {
 pub struct Assignment {
     pub identifier: String,
     pub type_annotation: Option<TypeLiteral>,
-    pub rhs: Expression,
+    pub rhs: ExpressionTerm,
     pub start_pos: usize
 }
 
@@ -28,7 +28,7 @@ pub struct FunctionDefinition {
 #[derive(Debug)]
 pub struct FunctionBody {
     pub statements: Vec<Statement>,
-    pub return_expression: Option<Expression>
+    pub return_expression_term: Option<ExpressionTerm>
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -37,6 +37,11 @@ pub enum TypeLiteral {
     Boolean,
     String,
     Unit
+}
+
+#[derive(Debug)]
+pub struct ExpressionTerm {
+    pub expression: Expression
 }
 
 #[derive(Debug)]

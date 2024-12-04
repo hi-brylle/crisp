@@ -225,7 +225,7 @@ fn get_level_usages(scope: &Scope) -> Vec<Usage> {
             for s in statements {
                 match s {
                     AssignmentStmt(assignment) => {
-                        usages.append(&mut extract_usages(&assignment.rhs));
+                        usages.append(&mut extract_usages(&assignment.rhs.expression));
                     },
                     FunctionDefStmt(_) => {},
                 }
@@ -236,16 +236,16 @@ fn get_level_usages(scope: &Scope) -> Vec<Usage> {
             for s in statements {
                 match s {
                     AssignmentStmt(assignment) => {
-                        usages.append(&mut extract_usages(&assignment.rhs));
+                        usages.append(&mut extract_usages(&assignment.rhs.expression));
                     },
                     FunctionDefStmt(_) => {},
                 }
             }
 
-            let return_expression = &function_definition.function_body.return_expression;
+            let return_expression = &function_definition.function_body.return_expression_term;
             match return_expression {
                 Some(return_expression) => {
-                    usages.append(&mut extract_usages(&return_expression));
+                    usages.append(&mut extract_usages(&return_expression.expression));
                 },
                 None => {},
             }

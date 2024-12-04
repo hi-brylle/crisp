@@ -59,7 +59,9 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
     match children.len() {
         2 => {
             let identifier = children.next().unwrap().as_str().to_owned();
-            let rhs = build_expression_ast(children.next().unwrap());
+            let rhs = ExpressionTerm {
+                expression: build_expression_ast(children.next().unwrap())
+            };
         
             Assignment {
                 identifier,
@@ -71,7 +73,9 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
         3 => {
             let identifier = children.next().unwrap().as_str().to_owned();
             let raw_type_literal = children.next().unwrap().as_str();
-            let rhs = build_expression_ast(children.next().unwrap());
+            let rhs =  ExpressionTerm {
+                expression: build_expression_ast(children.next().unwrap())
+            };
         
             let type_literal: TypeLiteral = parse_type_literal(raw_type_literal);
 
@@ -157,11 +161,11 @@ fn build_function_body_ast(pair: pest::iterators::Pair<Rule>) -> FunctionBody {
             if children.len() == 0 {
                 FunctionBody {
                     statements: vec![],
-                    return_expression: None,
+                    return_expression_term: None,
                 }
             } else {
                 let mut statements: Vec<Statement> = vec![];
-                let mut return_expression: Option<Expression> = None;
+                let mut return_expression: Option<ExpressionTerm> = None;
 
                 for c in children {
                     match c.as_rule() {
@@ -169,7 +173,9 @@ fn build_function_body_ast(pair: pest::iterators::Pair<Rule>) -> FunctionBody {
                             statements.push(build_statement_ast(c));
                         },
                         Rule::Expression => {
-                            return_expression = Some(build_expression_ast(c))
+                            return_expression = Some(ExpressionTerm {
+                                expression: build_expression_ast(c),
+                            })
                         },
                         _ => unreachable!("Expecting Statement or Expression only! (found {:?})", c.as_rule())
                     }
@@ -177,7 +183,7 @@ fn build_function_body_ast(pair: pest::iterators::Pair<Rule>) -> FunctionBody {
                 
                 FunctionBody {
                     statements,
-                    return_expression,
+                    return_expression_term: return_expression,
                 }
             }
         }
