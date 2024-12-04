@@ -1,8 +1,7 @@
 #[derive(Debug)]
 pub struct Program {
-    pub statements: Vec<Statement>,
-
-    pub scope_address: String
+    pub scope_address: String,
+    pub statements: Vec<Statement>
 }
 
 #[derive(Debug)]
@@ -13,6 +12,7 @@ pub enum Statement {
 
 #[derive(Debug)]
 pub struct Assignment {
+    pub scope_address: String,
     pub identifier: String,
     pub type_annotation: Option<TypeLiteral>,
     pub rhs: ExpressionTerm,

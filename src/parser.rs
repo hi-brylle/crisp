@@ -18,7 +18,7 @@ pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
                         println!("=========\n");
                     },
                     Rule::Statement => {
-                        statements.push(build_statement_ast(c));
+                        statements.push(build_statement_ast(scope_address, c));
                     },
                     _ => unreachable!("Unexpected Program node child! (found {:?})", c.as_rule())
                 }
@@ -28,12 +28,12 @@ pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
     }
 
     Program {
-        statements,
-        scope_address: scope_address.to_string()
+        scope_address: scope_address.to_string(),
+        statements
     }
 }
 
-fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
+fn build_statement_ast(parent_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> Statement {
     debug_pair(&pair);
 
     // Always contains one item: the type of the Statement.
@@ -42,7 +42,7 @@ fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
     
     match only_child.as_rule() {
         Rule::Assignment => { 
-            Statement::AssignmentStmt(build_assignment_ast(only_child))
+            Statement::AssignmentStmt(build_assignment_ast(parent_scope_address, only_child))
         },
         Rule::FunctionDefinition => {
             Statement::FunctionDefStmt(build_function_def_ast(only_child))
@@ -51,7 +51,7 @@ fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
     } 
 }
 
-fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
+fn build_assignment_ast(parent_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> Assignment {
     debug_pair(&pair);
 
     let start_pos = pair.as_span().start();
@@ -66,6 +66,7 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
             };
         
             Assignment {
+                scope_address: parent_scope_address.to_owned() + "::" + &identifier.to_owned(),
                 identifier,
                 type_annotation: None,
                 rhs,
@@ -82,6 +83,7 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
             let type_literal: TypeLiteral = parse_type_literal(raw_type_literal);
 
             Assignment {
+                scope_address: parent_scope_address.to_owned() + "::" + &identifier.to_owned(),
                 identifier,
                 type_annotation: Some(type_literal),
                 rhs,
@@ -110,7 +112,7 @@ fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefiniti
     let return_type_raw = children.next().unwrap().as_str();
     let function_return_type = parse_type_literal(return_type_raw);
 
-    let mut function_body: FunctionBody = build_function_body_ast(children.next().unwrap());
+    let mut function_body: FunctionBody = build_function_body_ast(&function_name, children.next().unwrap());
 
     FunctionDefinition {
         function_name,
@@ -156,7 +158,7 @@ fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<FunctionP
     }
 }
 
-fn build_function_body_ast(pair: pest::iterators::Pair<Rule>) -> FunctionBody {
+fn build_function_body_ast(function_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> FunctionBody {
     match pair.as_rule() {
         Rule::FunctionBody => {
             // Contains zero or more statements and an optional return expression. 
@@ -175,7 +177,7 @@ fn build_function_body_ast(pair: pest::iterators::Pair<Rule>) -> FunctionBody {
                 for c in children {
                     match c.as_rule() {
                         Rule::Statement => {
-                            statements.push(build_statement_ast(c));
+                            statements.push(build_statement_ast(function_scope_address, c));
                         },
                         Rule::Expression => {
                             return_expression = Some(ExpressionTerm {
