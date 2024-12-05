@@ -15,7 +15,9 @@ pub struct Symbol {
 #[derive(Debug)]
 enum SymbolKind {
     VariableDeclaration(usize),
-    FunctionDefinition,
+
+    // Size of the type vector is the arity of the function.
+    FunctionDefinition(Vec<TypeLiteral>),
     FunctionParameter(TypeLiteral)
 }
 
@@ -51,10 +53,16 @@ fn build_assignment_symbol_table(assignment: &Assignment) -> Vec<Symbol> {
 fn build_function_def_symbol_table(function_definition: &FunctionDefinition) -> Vec<Symbol> {
     let mut symbol_table: Vec<Symbol> = vec![];
 
+    let mut type_vector: Vec<TypeLiteral> = vec![];
+    for parameter in &function_definition.function_parameters {
+        type_vector.push(parameter.parameter_type.clone());
+    }
+    type_vector.push(function_definition.function_return_type.clone());
+    
     symbol_table.push(Symbol {
         scope_address: function_definition.scope_address.clone(),
         symbol: function_definition.function_name.clone(),
-        kind: SymbolKind::FunctionDefinition,
+        kind: SymbolKind::FunctionDefinition(type_vector),
     });
 
     for parameter in &function_definition.function_parameters {
