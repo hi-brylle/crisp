@@ -1,6 +1,11 @@
 let explicit: Boolean = true;
 
-/* types can be elidedy */
+/* types can be elided */
 let str = "hello world";
 let boo = false;
 let num = 42;
+
+/* should be ignored */
+fun if(a: Number): Boolean {
+    return a
+};
