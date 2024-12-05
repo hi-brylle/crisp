@@ -17,19 +17,21 @@ pub enum UsageKind {
     FunctionCall
 }
 
-pub fn check_redeclarations(symbol_table: &SymbolTable) -> Vec<Symbol>  {
+pub fn ignore_redeclarations(symbol_table: &SymbolTable) -> (SymbolTable, Vec<Symbol>)  {
     let mut redeclared_symbols: Vec<Symbol> = vec![];
+    let mut unique_symbols: Vec<Symbol> = vec![];
     let mut temp: HashSet<String> = HashSet::new();
     let symbol_table = &symbol_table.symbol_table;
     
-    // Collect redeclared symbols, ignoring original declarations.
     for symbol in symbol_table {
         if !temp.insert(symbol.scope_address.clone()) {
             redeclared_symbols.push(symbol.clone());
+        } else {
+            unique_symbols.push(symbol.clone());
         }
     }
     
-    redeclared_symbols
+    (SymbolTable { symbol_table: unique_symbols }, redeclared_symbols)
 }
 
 pub fn get_program_usages(program_ast: &Program) -> Vec<Usage> {
