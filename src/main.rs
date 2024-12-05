@@ -1,7 +1,7 @@
 use std::fs::*;
 use std::env::*;
 
-use name_resolution::ignore_redeclarations;
+use name_resolution::clean_up_symbol_table;
 use name_resolution::get_program_usages;
 use parser::build_program_ast;
 use pest::Parser;
@@ -67,7 +67,7 @@ fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTab
     let (symbol_table, program_ast) = table_and_ast;
     println!("Symbol table: {:#?}", symbol_table);
 
-    let (deduplicated_symbol_table, redeclarations, against_reserved) = ignore_redeclarations(&symbol_table);
+    let (deduplicated_symbol_table, redeclarations, against_reserved) = clean_up_symbol_table(&symbol_table);
     println!("Redeclarations: {:#?}", redeclarations);
     println!("Reserved keyword errors: {:#?}", against_reserved);
     println!("Deduplicated symbol table: {:#?}", deduplicated_symbol_table);

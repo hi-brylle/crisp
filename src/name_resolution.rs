@@ -17,7 +17,8 @@ pub enum UsageKind {
     FunctionCall
 }
 
-pub fn ignore_redeclarations(symbol_table: &SymbolTable) -> (SymbolTable, Vec<Symbol>, Vec<Symbol>)  {
+/// Removes redeclarations and symbols that belong to reserved keywords.
+pub fn clean_up_symbol_table(symbol_table: &SymbolTable) -> (SymbolTable, Vec<Symbol>, Vec<Symbol>)  {
     let mut valid_symbols: Vec<Symbol> = vec![];
     let mut temp: HashSet<String> = HashSet::new();
     let mut redeclared_symbols: Vec<Symbol> = vec![];
