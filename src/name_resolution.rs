@@ -17,21 +17,39 @@ pub enum UsageKind {
     FunctionCall
 }
 
-pub fn ignore_redeclarations(symbol_table: &SymbolTable) -> (SymbolTable, Vec<Symbol>)  {
-    let mut redeclared_symbols: Vec<Symbol> = vec![];
-    let mut unique_symbols: Vec<Symbol> = vec![];
+pub fn ignore_redeclarations(symbol_table: &SymbolTable) -> (SymbolTable, Vec<Symbol>, Vec<Symbol>)  {
+    let mut valid_symbols: Vec<Symbol> = vec![];
     let mut temp: HashSet<String> = HashSet::new();
+    let mut redeclared_symbols: Vec<Symbol> = vec![];
+
+    let mut clashes_against_reserved: Vec<Symbol> = vec![];
+    let mut reserved: HashSet<String> = HashSet::new();
+    reserved.insert("let".to_string());
+    reserved.insert("fun".to_string());
+    reserved.insert("return".to_string());
+    reserved.insert("if".to_string());
+    reserved.insert("else".to_string());
+    reserved.insert("true".to_string());
+    reserved.insert("false".to_string());
+    reserved.insert("Number".to_string());
+    reserved.insert("Boolean".to_string());
+    reserved.insert("String".to_string());
+    reserved.insert("Unit".to_string());
+
     let symbol_table = &symbol_table.symbol_table;
     
     for symbol in symbol_table {
         if !temp.insert(symbol.scope_address.clone()) {
             redeclared_symbols.push(symbol.clone());
+        } else
+        if reserved.contains(&symbol.symbol) {
+            clashes_against_reserved.push(symbol.clone());
         } else {
-            unique_symbols.push(symbol.clone());
+            valid_symbols.push(symbol.clone());
         }
     }
     
-    (SymbolTable { symbol_table: unique_symbols }, redeclared_symbols)
+    (SymbolTable { symbol_table: valid_symbols }, redeclared_symbols, clashes_against_reserved)
 }
 
 pub fn get_program_usages(program_ast: &Program) -> Vec<Usage> {

@@ -1,3 +1,10 @@
+let temp = 10; /* should be ignored by temp inside add */
+
+fun from_outside(ignored: Boolean): Number {
+    let always_false = (|| false ignored);
+    return temp
+};
+
 fun add(addend1: Number, addend2: Number): Number {
     let temp = (+ addend1 addend2);
     return temp

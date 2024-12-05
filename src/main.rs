@@ -67,9 +67,10 @@ fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTab
     let (symbol_table, program_ast) = table_and_ast;
     println!("Symbol table: {:#?}", symbol_table);
 
-    let (deduplicated_symbol_table, redeclarations) = ignore_redeclarations(&symbol_table);
-    println!("Deduplicated symbol table: {:#?}", deduplicated_symbol_table);
+    let (deduplicated_symbol_table, redeclarations, against_reserved) = ignore_redeclarations(&symbol_table);
     println!("Redeclarations: {:#?}", redeclarations);
+    println!("Reserved keyword errors: {:#?}", against_reserved);
+    println!("Deduplicated symbol table: {:#?}", deduplicated_symbol_table);
 
     println!("Usages: {:#?}", get_program_usages(&program_ast));
 
