@@ -1,22 +1,18 @@
 use std::fs::*;
 use std::env::*;
 
-use name_resolution::clean_up_symbol_table;
-use name_resolution::get_program_usages;
-use parser::build_program_ast;
 use pest::Parser;
 use pest_derive::Parser;
-
-use ast::Program;
-use scope::name_resolution;
-use scope::Scope::*;
-use scope::NameResolutionErrorKind::*;
-use symbol_table::build_program_symbol_table;
-use symbol_table::SymbolTable;
-
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
 pub struct GrammarParser;
+
+use ast::Program;
+use parser::build_program_ast;
+use symbol_table::SymbolTable;
+use symbol_table::build_program_symbol_table;
+use name_resolution::clean_up_symbol_table;
+use name_resolution::get_program_usages;
 
 mod ast;
 mod parser;
@@ -67,10 +63,10 @@ fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTab
     let (symbol_table, program_ast) = table_and_ast;
     println!("Symbol table: {:#?}", symbol_table);
 
-    let (deduplicated_symbol_table, redeclarations, against_reserved) = clean_up_symbol_table(&symbol_table);
+    let (valid_symbol_table, redeclarations, against_reserved) = clean_up_symbol_table(&symbol_table);
     println!("Redeclarations: {:#?}", redeclarations);
     println!("Reserved keyword errors: {:#?}", against_reserved);
-    println!("Deduplicated symbol table: {:#?}", deduplicated_symbol_table);
+    println!("Valid symbol table: {:#?}", valid_symbol_table);
 
     println!("Usages: {:#?}", get_program_usages(&program_ast));
 
