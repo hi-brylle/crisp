@@ -2,6 +2,7 @@ use std::fs::*;
 use std::env::*;
 
 use name_resolution::check_redeclarations;
+use name_resolution::get_program_usages;
 use parser::build_program_ast;
 use pest::Parser;
 use pest_derive::Parser;
@@ -69,6 +70,7 @@ fn extract_symbol_table(program_ast: Program) -> Result<(SymbolTable, Program), 
 fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
     let (symbol_table, program_ast) = table_and_ast;
     println!("Redeclarations: {:#?}", check_redeclarations(&symbol_table));
+    println!("Usages: {:#?}", get_program_usages(&program_ast));
     Err(vec!["Semantic analysis not fully implemented".to_owned()])
 }
 
