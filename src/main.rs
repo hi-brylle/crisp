@@ -1,6 +1,7 @@
 use std::fs::*;
 use std::env::*;
 
+use name_resolution::resolve_names;
 use pest::Parser;
 use pest_derive::Parser;
 #[derive(Parser)]
@@ -68,7 +69,9 @@ fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTab
     println!("Reserved keyword errors: {:#?}", against_reserved);
     println!("Valid symbol table: {:#?}", valid_symbol_table);
 
-    println!("Usages: {:#?}", get_program_usages(&program_ast));
+    let usages = get_program_usages(&program_ast);
+    println!("Usages: {:#?}", usages);
+    println!("Resolved names: {:#?}", resolve_names(&usages, &valid_symbol_table));
 
     Err(vec!["Semantic analysis not fully implemented".to_owned()])
 }

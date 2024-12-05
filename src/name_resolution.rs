@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::vec;
 
-use crate::ast::{Assignment, Expression::{self, *}, ExpressionTerm, FunctionDefinition, Program, Statement};
+use crate::{ast::{Assignment, Expression::{self, *}, ExpressionTerm, FunctionDefinition, Program, Statement}, symbol_table};
 use crate::symbol_table::{SymbolTable, Symbol, SymbolKind};
 
 #[derive(Debug, Clone)]
@@ -15,6 +15,12 @@ pub struct Usage {
 pub enum UsageKind {
     VariableReference,
     FunctionCall
+}
+
+#[derive(Debug)]
+pub struct BoundUsage {
+    pub usage: Usage,
+    pub associated_symbol: Symbol
 }
 
 /// Removes redeclarations and symbols that belong to reserved keywords.
@@ -234,3 +240,67 @@ fn get_expression_term_usages(expression_term: &ExpressionTerm) -> Vec<Usage> {
     usages
 }
 
+pub fn resolve_names(usages: &Vec<Usage>, valid_symbol_table: &SymbolTable) -> Vec<BoundUsage> {
+    let mut bound_usages: Vec<BoundUsage> = vec![];
+
+    for usage in usages {
+        match resolve_usage(usage, valid_symbol_table) {
+            Some(bound_usage) => bound_usages.push(bound_usage),
+            None => {},
+        }
+    }
+
+    bound_usages
+}
+
+fn get_depth(scope_address: &String) -> usize {
+    scope_address.split("::").collect::<Vec<&str>>().len()
+}
+
+fn resolve_usage(usage: &Usage, valid_symbol_table: &SymbolTable) -> Option<BoundUsage> {
+    match usage.kind {
+        UsageKind::VariableReference => {
+            for symbol in &valid_symbol_table.symbol_table {
+                match &symbol.kind {
+                    SymbolKind::VariableDeclaration(_) => {
+                        if symbol.symbol == usage.symbol 
+                            && get_depth(&symbol.scope_address) < get_depth(&usage.enclosing_scope_address) + 1 {
+                            return Some(BoundUsage {
+                                usage: usage.clone(),
+                                associated_symbol: symbol.clone(),
+                            })
+                        }
+                    },
+                    SymbolKind::FunctionParameter(_) => {
+                        if symbol.symbol == usage.symbol 
+                            && get_depth(&symbol.scope_address) < get_depth(&usage.enclosing_scope_address) + 1 {
+                            return Some(BoundUsage {
+                                usage: usage.clone(),
+                                associated_symbol: symbol.clone(),
+                            })
+                        }
+                    },
+                    _ => {},
+                }
+            }
+        },
+        UsageKind::FunctionCall => {
+            for symbol in &valid_symbol_table.symbol_table {
+                match &symbol.kind {
+                    SymbolKind::FunctionDefinition(_) => {
+                        if symbol.symbol == usage.symbol 
+                            && get_depth(&symbol.scope_address) < get_depth(&usage.enclosing_scope_address) + 1 {
+                            return Some(BoundUsage {
+                                usage: usage.clone(),
+                                associated_symbol: symbol.clone(),
+                            })
+                        }
+                    },
+                    _ => {}
+                }
+            }
+        },
+    }
+
+    None
+}
