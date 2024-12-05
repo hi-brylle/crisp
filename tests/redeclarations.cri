@@ -1,5 +1,6 @@
 let a = 12;
 let a = 21;
+let a = 19;
 
 let b = false;
 let b = true;
