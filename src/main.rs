@@ -27,10 +27,6 @@ mod name_resolution;
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
 
-    // let frontend_result = 
-    //     parse_source(src)
-    //     .and_then(resolve_names);
-
     let frontend_result = 
         parse_source(src)
         .and_then(extract_symbol_table)
@@ -73,26 +69,4 @@ fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTab
     println!("Redeclarations: {:#?}", check_redeclarations(&symbol_table));
     println!("Usages: {:#?}", get_program_usages(&program_ast));
     Err(vec!["Semantic analysis not fully implemented".to_owned()])
-}
-
-fn resolve_names(program_ast: Program) -> Result<ast::Program, Vec<String>>{
-    let resolution_errors = name_resolution(&ProgramScope(&program_ast), &mut vec![]);
-
-    if resolution_errors.is_empty() {
-        println!("\nGLOBAL SYMBOL TABLE: {:#?}\n", build_program_symbol_table(&program_ast));
-        Ok(program_ast)
-    } else {
-        Err(resolution_errors
-            .into_iter()
-            .map(|resolution_error|
-                match resolution_error.error_kind {
-                    Redeclaration(symbol) => {
-                        format!("{:?} \"{}\" redeclared in \"{}\" scope.", symbol.kind, symbol.symbol, resolution_error.scope_name)
-                    },
-                    Undefined(usage) => {
-                        format!("{:?} \"{}\" not defined in \"{}\" scope and beyond.", usage.kind, usage.symbol, resolution_error.scope_name)
-                    },
-                }
-            ).collect())
-    }
 }
