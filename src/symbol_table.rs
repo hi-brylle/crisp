@@ -5,14 +5,14 @@ pub struct SymbolTable {
     pub symbol_table: Vec<Symbol>
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Symbol {
     pub scope_address: String,
     pub symbol: String,
     pub kind: SymbolKind,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum SymbolKind {
     VariableDeclaration(usize),
 

@@ -1,6 +1,7 @@
 use std::fs::*;
 use std::env::*;
 
+use name_resolution::check_redeclarations;
 use parser::build_program_ast;
 use pest::Parser;
 use pest_derive::Parser;
@@ -20,6 +21,7 @@ mod ast;
 mod parser;
 mod scope;
 mod symbol_table;
+mod name_resolution;
 
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
@@ -30,7 +32,8 @@ fn main() {
 
     let frontend_result = 
         parse_source(src)
-        .and_then(to_symbol_table);
+        .and_then(extract_symbol_table)
+        .and_then(semantic_analysis);
 
     match frontend_result {
         Ok(result) => {
@@ -45,7 +48,7 @@ fn main() {
     }
 }
 
-fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
+fn parse_source(source: String) -> Result<Program, Vec<String>> {
     let parse_result = GrammarParser::parse(Rule::Program, &source);
 
     match parse_result {
@@ -59,8 +62,14 @@ fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
     }
 }
 
-fn to_symbol_table(program_ast: Program) -> Result<SymbolTable, Vec<String>> {
-    Ok(build_program_symbol_table(&program_ast))
+fn extract_symbol_table(program_ast: Program) -> Result<(SymbolTable, Program), Vec<String>> {
+    Ok((build_program_symbol_table(&program_ast), program_ast))
+}
+
+fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
+    let (symbol_table, program_ast) = table_and_ast;
+    println!("REDECLARATIONS: {:#?}", check_redeclarations(&symbol_table));
+    Err(vec!["Semantic analysis not fully implemented".to_owned()])
 }
 
 fn resolve_names(program_ast: Program) -> Result<ast::Program, Vec<String>>{

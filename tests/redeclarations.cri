@@ -1,0 +1,5 @@
+let a = 12;
+let a = 21;
+
+let b = false;
+let b = true;
