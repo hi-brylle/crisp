@@ -10,8 +10,8 @@ fun add(addend1: Number, addend2: Number): Number {
     return temp
 };
 
-fun add(addend2: Number): Number {
-    let res = (- addend2); /* to-do: addend2 gets tagged as redeclaration */
+fun add(addend1: Number): Number {
+    let res = (- addend1);
     return res
 };
 

@@ -13,7 +13,7 @@ pub struct Symbol {
 }
 
 #[derive(Debug, Clone)]
-enum SymbolKind {
+pub enum SymbolKind {
     VariableDeclaration(usize),
 
     // Size of the type vector is the arity of the function.

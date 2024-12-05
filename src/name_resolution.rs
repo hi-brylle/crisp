@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::vec;
 
 use crate::ast::{Assignment, Expression::{self, *}, ExpressionTerm, FunctionDefinition, Program, Statement};
-use crate::symbol_table::{Symbol, SymbolTable};
+use crate::symbol_table::{SymbolTable, Symbol, SymbolKind};
 
 #[derive(Debug, Clone)]
 pub struct Usage {
@@ -41,7 +41,39 @@ pub fn clean_up_symbol_table(symbol_table: &SymbolTable) -> (SymbolTable, Vec<Sy
     
     for symbol in symbol_table {
         if !temp.insert(symbol.scope_address.clone()) {
-            redeclared_symbols.push(symbol.clone());
+            match &symbol.kind {
+                SymbolKind::VariableDeclaration(_) => {
+                    redeclared_symbols.push(symbol.clone());
+                },
+                SymbolKind::FunctionDefinition(_) => {
+                    redeclared_symbols.push(symbol.clone());
+                },
+                SymbolKind::FunctionParameter(_) => {
+                    /*
+                    Exclude function parameters from redeclarations
+                    to prevent redundant error reporting when semantic analysis
+                    detects function definition redeclarations for
+                    similarly named parameters.
+
+                    Example:
+
+                    ...
+                    fun add(addend1: Number, addend2: Number): Number {
+                        let temp = (+ addend1 addend2);
+                        return temp
+                    };
+
+                    fun add(addend1: Number): Number {
+                        let res = (- addend1);
+                        return res
+                    };
+                    ...
+
+                    Second add function should only be tagged as a redeclaration,
+                    not its addend1 parameter.
+                    */
+                },
+            }
         } else
         if reserved.contains(&symbol.symbol) {
             clashes_against_reserved.push(symbol.clone());
