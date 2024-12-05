@@ -7,8 +7,8 @@ pub struct SymbolTable {
 
 #[derive(Debug, Clone)]
 pub struct Symbol {
-    pub scope_address: String,
     pub symbol: String,
+    pub scope_address: String,
     pub kind: SymbolKind,
 }
 

@@ -6,14 +6,14 @@ use crate::symbol_table::{SymbolTable, Symbol, SymbolKind};
 
 #[derive(Debug, Clone)]
 pub struct Usage {
-    pub enclosing_scope_address: String,
     pub symbol: String,
+    pub enclosing_scope_address: String,
     pub kind: UsageKind
 }
 
 #[derive(Debug, Clone)]
 pub enum UsageKind {
-    VariableReference,
+    VariableReference(usize),
     FunctionCall
 }
 
@@ -155,7 +155,7 @@ fn get_expression_term_usages(expression_term: &ExpressionTerm) -> Vec<Usage> {
                 usages.push(Usage {
                     enclosing_scope_address: enclosing_scope_address.to_owned(),
                     symbol: identifier.identifier_name.clone(),
-                    kind: UsageKind::VariableReference,
+                    kind: UsageKind::VariableReference(identifier.start_pos),
                 });
             },
             Negative(expression) => {
@@ -259,12 +259,13 @@ fn get_depth(scope_address: &String) -> usize {
 
 fn resolve_usage(usage: &Usage, valid_symbol_table: &SymbolTable) -> Option<BoundUsage> {
     match usage.kind {
-        UsageKind::VariableReference => {
+        UsageKind::VariableReference(usage_start_pos) => {
             for symbol in &valid_symbol_table.symbol_table {
                 match &symbol.kind {
-                    SymbolKind::VariableDeclaration(_) => {
-                        if symbol.symbol == usage.symbol 
-                            && get_depth(&symbol.scope_address) < get_depth(&usage.enclosing_scope_address) + 1 {
+                    SymbolKind::VariableDeclaration(symbol_start_pos) => {
+                        if symbol.symbol == usage.symbol &&
+                            get_depth(&symbol.scope_address) < get_depth(&usage.enclosing_scope_address) + 1 && 
+                            *symbol_start_pos < usage_start_pos {
                             return Some(BoundUsage {
                                 usage: usage.clone(),
                                 associated_symbol: symbol.clone(),
