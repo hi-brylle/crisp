@@ -33,9 +33,9 @@ fn main() {
         .and_then(to_symbol_table);
 
     match frontend_result {
-        Ok(ast) => {
+        Ok(result) => {
             println!("Parse and semantic analysis success!");
-            println!("{:?}", ast);
+            println!("{:#?}", result);
         },
         Err(errors) => {
             for error in errors {
@@ -54,7 +54,7 @@ fn parse_source(source: String) -> Result<ast::Program, Vec<String>> {
             Ok(build_program_ast(root))
         },
         Err(e) => {
-            Err(vec![format!("Parse error: {:?}", e)])
+            Err(vec![format!("Parse error: {:#?}", e)])
         },
     }
 }
@@ -67,7 +67,7 @@ fn resolve_names(program_ast: Program) -> Result<ast::Program, Vec<String>>{
     let resolution_errors = name_resolution(&ProgramScope(&program_ast), &mut vec![]);
 
     if resolution_errors.is_empty() {
-        println!("\nGLOBAL SYMBOL TABLE: {:?}\n", build_program_symbol_table(&program_ast));
+        println!("\nGLOBAL SYMBOL TABLE: {:#?}\n", build_program_symbol_table(&program_ast));
         Ok(program_ast)
     } else {
         Err(resolution_errors
