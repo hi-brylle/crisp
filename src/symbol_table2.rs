@@ -17,7 +17,7 @@ pub struct SymbolInfo {
 
 #[derive(Debug)]
 pub enum SymbolKind2 {
-    VariableDeclaration(usize),    
+    VariableDeclaration(Option<TypeLiteral>, usize),    
     FunctionDefinition(Vec<TypeLiteral>), // Size of the type vector is the arity of the function.
     FunctionParameter(TypeLiteral)
 }
@@ -75,7 +75,7 @@ fn build_assignment_symbol_table2(assignment: &Assignment) -> HashMap<String, Sy
         SymbolInfo {
             symbol: assignment.identifier.clone(),
             scope_address: assignment.scope_address.clone(),
-            kind: SymbolKind2::VariableDeclaration(assignment.start_pos),
+            kind: SymbolKind2::VariableDeclaration(assignment.type_annotation.clone(), assignment.start_pos),
             inner: None,
         }
     )])
