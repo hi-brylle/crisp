@@ -9,7 +9,6 @@ pub struct SymbolTable2 {
 
 #[derive(Debug)]
 pub struct SymbolInfo {
-    pub symbol: String,
     pub scope_address: String,
     pub kind: SymbolKind2,
     pub inner: Option<SymbolTable2>
@@ -55,7 +54,6 @@ fn build_statement_symbol_table2(statement: &Statement) -> HashMap<String, Symbo
             symbol_table.insert(
                 function_definition.function_name.clone(),
                 SymbolInfo {
-                    symbol: function_definition.function_name.clone(),
                     scope_address: function_definition.scope_address.clone(),
                     kind: SymbolKind2::FunctionDefinition(type_vector),
                     inner: Some(SymbolTable2 {
@@ -73,7 +71,6 @@ fn build_assignment_symbol_table2(assignment: &Assignment) -> HashMap<String, Sy
     HashMap::from([(
         assignment.identifier.clone(),
         SymbolInfo {
-            symbol: assignment.identifier.clone(),
             scope_address: assignment.scope_address.clone(),
             kind: SymbolKind2::VariableDeclaration(assignment.type_annotation.clone(), assignment.start_pos),
             inner: None,
@@ -88,7 +85,6 @@ fn build_function_def_symbol_table2(function_definition: &FunctionDefinition) ->
         symbol_table.insert(
             parameter.parameter_name.clone(),
             SymbolInfo {
-                symbol: parameter.parameter_name.clone(),
                 scope_address: parameter.scope_address.clone(),
                 kind: SymbolKind2::FunctionParameter(parameter.parameter_type.clone()),
                 inner: None,
