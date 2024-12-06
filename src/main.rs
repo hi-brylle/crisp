@@ -1,6 +1,7 @@
 use std::fs::*;
 use std::env::*;
 
+use name_resolution::resolve_candidate_bindings;
 use name_resolution::resolve_names;
 use pest::Parser;
 use pest_derive::Parser;
@@ -71,7 +72,7 @@ fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTab
 
     let usages = get_program_usages(&program_ast);
     println!("Usages: {:#?}", usages);
-    println!("Resolved names: {:#?}", resolve_names(&usages, &valid_symbol_table));
+    println!("Candidate bindings: {:#?}", resolve_candidate_bindings(&usages, &valid_symbol_table));
 
     Err(vec!["Semantic analysis not fully implemented".to_owned()])
 }

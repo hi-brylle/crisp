@@ -1,3 +1,12 @@
 let c = (+ a b);
 let a = 12;
 let b = 10;
+
+fun shit(arg: Number): Number {
+    fun inner(a: Number): Number {
+        let b = 12;
+        return (+ a b)
+    };
+
+    return (inner 69)
+};

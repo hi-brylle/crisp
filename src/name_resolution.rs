@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, ops::Bound};
 use std::vec;
 
 use crate::{ast::{Assignment, Expression::{self, *}, ExpressionTerm, FunctionDefinition, Program, Statement}, symbol_table};
@@ -260,6 +260,7 @@ fn get_depth(scope_address: &String) -> usize {
 fn resolve_usage(usage: &Usage, valid_symbol_table: &SymbolTable) -> Option<BoundUsage> {
     match usage.kind {
         UsageKind::VariableReference(usage_start_pos) => {
+            // TO-DO: FIX THIS BUGGY MESS
             for symbol in &valid_symbol_table.symbol_table {
                 match &symbol.kind {
                     SymbolKind::VariableDeclaration(symbol_start_pos) => {
@@ -304,4 +305,35 @@ fn resolve_usage(usage: &Usage, valid_symbol_table: &SymbolTable) -> Option<Boun
     }
 
     None
+}
+
+fn get_candidate_bindings(usage: &Usage, valid_symbol_table: &SymbolTable) -> Vec<BoundUsage> {
+    let mut candidate_bindings: Vec<BoundUsage> = vec![];
+
+    match usage.kind {
+        UsageKind::VariableReference(_) => { /* to-do */ },
+        UsageKind::FunctionCall => {
+            for symbol in &valid_symbol_table.symbol_table {
+                if symbol.symbol == usage.symbol &&
+                    get_depth(&symbol.scope_address) < get_depth(&usage.enclosing_scope_address) + 1 {
+                    candidate_bindings.push(BoundUsage {
+                        usage: usage.clone(),
+                        associated_symbol: symbol.clone(),
+                    });
+                }
+            }
+        },
+    }
+
+    candidate_bindings
+}
+
+pub fn resolve_candidate_bindings(usages: &Vec<Usage>, valid_symbol_table: &SymbolTable) -> Vec<BoundUsage> {
+    let mut candidate_bindings: Vec<BoundUsage> = vec![];
+
+    for usage in usages {
+        candidate_bindings.append(&mut get_candidate_bindings(usage, valid_symbol_table));
+    }
+
+    candidate_bindings
 }
