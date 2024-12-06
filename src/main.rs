@@ -15,19 +15,22 @@ use symbol_table::SymbolTable;
 use symbol_table::build_program_symbol_table;
 use name_resolution::clean_up_symbol_table;
 use name_resolution::get_program_usages;
+use symbol_table2::SymbolTable2;
+use symbol_table2::build_program_symbol_table2;
 
 mod ast;
 mod parser;
 mod scope;
 mod symbol_table;
 mod name_resolution;
+mod symbol_table2;
 
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
 
     let frontend_result = 
         parse_source(src)
-        .and_then(extract_symbol_table)
+        .and_then(extract_symbol_table2)
         .and_then(semantic_analysis);
 
     match frontend_result {
@@ -61,18 +64,22 @@ fn extract_symbol_table(program_ast: Program) -> Result<(SymbolTable, Program), 
     Ok((build_program_symbol_table(&program_ast), program_ast))
 }
 
-fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
+fn extract_symbol_table2(program_ast: Program) -> Result<(SymbolTable2, Program), Vec<String>> {
+    Ok((build_program_symbol_table2(&program_ast), program_ast))
+}
+
+fn semantic_analysis(table_and_ast: (SymbolTable2, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
     let (symbol_table, program_ast) = table_and_ast;
     println!("Symbol table: {:#?}", symbol_table);
 
-    let (valid_symbol_table, redeclarations, against_reserved) = clean_up_symbol_table(&symbol_table);
-    println!("Redeclarations: {:#?}", redeclarations);
-    println!("Reserved keyword errors: {:#?}", against_reserved);
-    println!("Valid symbol table: {:#?}", valid_symbol_table);
+    // let (valid_symbol_table, redeclarations, against_reserved) = clean_up_symbol_table(&symbol_table);
+    // println!("Redeclarations: {:#?}", redeclarations);
+    // println!("Reserved keyword errors: {:#?}", against_reserved);
+    // println!("Valid symbol table: {:#?}", valid_symbol_table);
 
-    let usages = get_program_usages(&program_ast);
-    println!("Usages: {:#?}", usages);
-    println!("Candidate bindings: {:#?}", resolve_candidate_bindings(&usages, &valid_symbol_table));
+    // let usages = get_program_usages(&program_ast);
+    // println!("Usages: {:#?}", usages);
+    // println!("Candidate bindings: {:#?}", resolve_candidate_bindings(&usages, &valid_symbol_table));
 
     Err(vec!["Semantic analysis not fully implemented".to_owned()])
 }
