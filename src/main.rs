@@ -59,7 +59,7 @@ fn extract_symbol_table2(program_ast: Program) -> Result<(SymbolTable, Program),
 
 fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
     let (symbol_table, program_ast) = table_and_ast;
-    println!("Symbol table: {:#?}", symbol_table);
+    println!("\nSymbol table: {:#?}", symbol_table);
 
     // let (valid_symbol_table, redeclarations, against_reserved) = clean_up_symbol_table(&symbol_table);
     // println!("Redeclarations: {:#?}", redeclarations);
