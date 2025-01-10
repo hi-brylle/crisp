@@ -3,44 +3,51 @@ use std::collections::HashMap;
 use crate::ast::{Assignment, FunctionDefinition, Program, Statement::{self, *}, TypeLiteral};
 
 #[derive(Debug)]
-pub struct SymbolTable2 {
+pub struct SymbolTable {
     pub symbol_table: HashMap<String, SymbolInfo>
 }
 
 #[derive(Debug)]
 pub struct SymbolInfo {
     pub scope_address: String,
-    pub kind: SymbolKind2,
-    pub inner: Option<SymbolTable2>
+    pub kind: SymbolKind,
+    pub inner: Option<SymbolTable>
 }
 
 #[derive(Debug)]
-pub enum SymbolKind2 {
-    VariableDeclaration(Option<TypeLiteral>, usize),    
-    FunctionDefinition(Vec<TypeLiteral>), // Size of the type vector is the arity of the function.
+pub enum SymbolKind {
+    // Type declarations are optional;
+    // usize refers to the location of the variable declaration (useful for shadowing).
+    VariableDeclaration(Option<TypeLiteral>, usize),
+
+    // The size of the type vector is the function's arity;
+    // items are the parameter types except the final item which is the return type.
+    FunctionDefinition(Vec<TypeLiteral>),
+
+    // Type is not optional for function parameters.
     FunctionParameter(TypeLiteral)
 }
 
-pub fn build_program_symbol_table2(program: &Program) -> SymbolTable2 {
+pub fn build_program_symbol_table(program: &Program) -> SymbolTable {
     let mut symbol_table: HashMap<String, SymbolInfo> = HashMap::new();
 
     for statement in &program.statements {
-        for (name, info) in build_statement_symbol_table2(statement) {
+        for (name, info) in build_statement_symbol_table(statement) {
             symbol_table.insert(name, info);
         }
     }
 
-    SymbolTable2 {
+    SymbolTable {
         symbol_table,
     }
 }
 
-fn build_statement_symbol_table2(statement: &Statement) -> HashMap<String, SymbolInfo> {
+fn build_statement_symbol_table(statement: &Statement) -> HashMap<String, SymbolInfo> {
     let mut symbol_table: HashMap<String, SymbolInfo> = HashMap::new();
 
     match statement {
         AssignmentStmt(assignment) => {
-            for (name, info) in build_assignment_symbol_table2(assignment) {
+            for (name, info) in build_assignment_symbol_table(assignment) {
                 symbol_table.insert(name, info);
             }
         },
@@ -55,9 +62,9 @@ fn build_statement_symbol_table2(statement: &Statement) -> HashMap<String, Symbo
                 function_definition.function_name.clone(),
                 SymbolInfo {
                     scope_address: function_definition.scope_address.clone(),
-                    kind: SymbolKind2::FunctionDefinition(type_vector),
-                    inner: Some(SymbolTable2 {
-                        symbol_table: build_function_def_symbol_table2(function_definition)
+                    kind: SymbolKind::FunctionDefinition(type_vector),
+                    inner: Some(SymbolTable {
+                        symbol_table: build_function_def_symbol_table(function_definition)
                     }),
                 }
             );
@@ -67,18 +74,18 @@ fn build_statement_symbol_table2(statement: &Statement) -> HashMap<String, Symbo
     symbol_table
 }
 
-fn build_assignment_symbol_table2(assignment: &Assignment) -> HashMap<String, SymbolInfo> {
+fn build_assignment_symbol_table(assignment: &Assignment) -> HashMap<String, SymbolInfo> {
     HashMap::from([(
         assignment.identifier.clone(),
         SymbolInfo {
             scope_address: assignment.scope_address.clone(),
-            kind: SymbolKind2::VariableDeclaration(assignment.type_annotation.clone(), assignment.start_pos),
+            kind: SymbolKind::VariableDeclaration(assignment.type_annotation.clone(), assignment.start_pos),
             inner: None,
         }
     )])
 }
 
-fn build_function_def_symbol_table2(function_definition: &FunctionDefinition) -> HashMap<String, SymbolInfo> {
+fn build_function_def_symbol_table(function_definition: &FunctionDefinition) -> HashMap<String, SymbolInfo> {
     let mut symbol_table: HashMap<String, SymbolInfo> = HashMap::new();
 
     for parameter in &function_definition.function_parameters {
@@ -86,14 +93,14 @@ fn build_function_def_symbol_table2(function_definition: &FunctionDefinition) ->
             parameter.parameter_name.clone(),
             SymbolInfo {
                 scope_address: parameter.scope_address.clone(),
-                kind: SymbolKind2::FunctionParameter(parameter.parameter_type.clone()),
+                kind: SymbolKind::FunctionParameter(parameter.parameter_type.clone()),
                 inner: None,
             }
         );
     }
 
     for statement in &function_definition.function_body.statements {
-        for (name, info) in build_statement_symbol_table2(statement) {
+        for (name, info) in build_statement_symbol_table(statement) {
             symbol_table.insert(name, info);
         }
     }

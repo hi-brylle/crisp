@@ -9,14 +9,14 @@ pub struct GrammarParser;
 
 use ast::Program;
 use parser::build_program_ast;
-use symbol_table2::SymbolTable2;
-use symbol_table2::build_program_symbol_table2;
+use symbol_table::SymbolTable;
+use symbol_table::build_program_symbol_table;
 
 mod ast;
 mod parser;
 mod scope;
 mod name_resolution;
-mod symbol_table2;
+mod symbol_table;
 
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
@@ -53,11 +53,11 @@ fn parse_source(source: String) -> Result<Program, Vec<String>> {
     }
 }
 
-fn extract_symbol_table2(program_ast: Program) -> Result<(SymbolTable2, Program), Vec<String>> {
-    Ok((build_program_symbol_table2(&program_ast), program_ast))
+fn extract_symbol_table2(program_ast: Program) -> Result<(SymbolTable, Program), Vec<String>> {
+    Ok((build_program_symbol_table(&program_ast), program_ast))
 }
 
-fn semantic_analysis(table_and_ast: (SymbolTable2, Program)) -> Result<(SymbolTable2, Program), Vec<String>> {
+fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
     let (symbol_table, program_ast) = table_and_ast;
     println!("Symbol table: {:#?}", symbol_table);
 
