@@ -28,6 +28,20 @@ pub enum SymbolKind {
     FunctionParameter(TypeLiteral)
 }
 
+static RESERVED_KEYWORDS: &[&str] = &[
+    "let",
+    "fun",
+    "return",
+    "if",
+    "else",
+    "true",
+    "false",
+    "Number",
+    "Boolean",
+    "String",
+    "Unit",
+];
+
 pub fn build_program_symbol_table(program: &Program) -> SymbolTable {
     let mut symbol_table: HashMap<String, SymbolInfo> = HashMap::new();
 
@@ -48,6 +62,9 @@ fn build_statement_symbol_table(statement: &Statement) -> SymbolTable {
     match statement {
         AssignmentStmt(assignment) => {
             for (name, info) in build_assignment_symbol_table(assignment).symbol_table {
+                if RESERVED_KEYWORDS.contains(&name.as_str()) {
+                    eprintln!("Variable declaration \"{}\" is a reserved keyword.", name)
+                }
                 symbol_table.insert(name, info);
             }
         },
@@ -58,6 +75,9 @@ fn build_statement_symbol_table(statement: &Statement) -> SymbolTable {
             }
             type_vector.push(function_definition.function_return_type.clone());
 
+            if RESERVED_KEYWORDS.contains(&function_definition.function_name.as_str()) {
+                eprintln!("Function \"{}\" is a reserved keyword.", function_definition.function_name)
+            }
             symbol_table.insert(
                 function_definition.function_name.clone(),
                 SymbolInfo {
@@ -93,6 +113,9 @@ fn build_function_def_symbol_table(function_definition: &FunctionDefinition) -> 
     let mut symbol_table: HashMap<String, SymbolInfo> = HashMap::new();
 
     for parameter in &function_definition.function_parameters {
+        if RESERVED_KEYWORDS.contains(&parameter.parameter_name.as_str()) {
+            eprintln!("Function parameter \"{}\" is a reserved keyword.", parameter.parameter_name)
+        }
         symbol_table.insert(
             parameter.parameter_name.clone(),
             SymbolInfo {
