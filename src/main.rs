@@ -1,8 +1,6 @@
 use std::fs::*;
 use std::env::*;
 
-use name_resolution::resolve_candidate_bindings;
-use name_resolution::resolve_names;
 use pest::Parser;
 use pest_derive::Parser;
 #[derive(Parser)]
@@ -11,17 +9,12 @@ pub struct GrammarParser;
 
 use ast::Program;
 use parser::build_program_ast;
-use symbol_table::SymbolTable;
-use symbol_table::build_program_symbol_table;
-use name_resolution::clean_up_symbol_table;
-use name_resolution::get_program_usages;
 use symbol_table2::SymbolTable2;
 use symbol_table2::build_program_symbol_table2;
 
 mod ast;
 mod parser;
 mod scope;
-mod symbol_table;
 mod name_resolution;
 mod symbol_table2;
 
@@ -60,15 +53,11 @@ fn parse_source(source: String) -> Result<Program, Vec<String>> {
     }
 }
 
-fn extract_symbol_table(program_ast: Program) -> Result<(SymbolTable, Program), Vec<String>> {
-    Ok((build_program_symbol_table(&program_ast), program_ast))
-}
-
 fn extract_symbol_table2(program_ast: Program) -> Result<(SymbolTable2, Program), Vec<String>> {
     Ok((build_program_symbol_table2(&program_ast), program_ast))
 }
 
-fn semantic_analysis(table_and_ast: (SymbolTable2, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
+fn semantic_analysis(table_and_ast: (SymbolTable2, Program)) -> Result<(SymbolTable2, Program), Vec<String>> {
     let (symbol_table, program_ast) = table_and_ast;
     println!("Symbol table: {:#?}", symbol_table);
 
