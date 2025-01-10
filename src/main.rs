@@ -23,7 +23,7 @@ fn main() {
 
     let frontend_result = 
         parse_source(src)
-        .and_then(extract_symbol_table2)
+        .and_then(extract_symbol_table)
         .and_then(semantic_analysis);
 
     match frontend_result {
@@ -53,22 +53,15 @@ fn parse_source(source: String) -> Result<Program, Vec<String>> {
     }
 }
 
-fn extract_symbol_table2(program_ast: Program) -> Result<(SymbolTable, Program), Vec<String>> {
+fn extract_symbol_table(program_ast: Program) -> Result<(SymbolTable, Program), Vec<String>> {
     Ok((build_program_symbol_table(&program_ast), program_ast))
 }
 
 fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
     let (symbol_table, program_ast) = table_and_ast;
+    println!("\nSymbol table: {:#?}", program_ast);
+    println!();
     println!("\nSymbol table: {:#?}", symbol_table);
 
-    // let (valid_symbol_table, redeclarations, against_reserved) = clean_up_symbol_table(&symbol_table);
-    // println!("Redeclarations: {:#?}", redeclarations);
-    // println!("Reserved keyword errors: {:#?}", against_reserved);
-    // println!("Valid symbol table: {:#?}", valid_symbol_table);
-
-    // let usages = get_program_usages(&program_ast);
-    // println!("Usages: {:#?}", usages);
-    // println!("Candidate bindings: {:#?}", resolve_candidate_bindings(&usages, &valid_symbol_table));
-
-    Err(vec!["Semantic analysis not fully implemented".to_owned()])
+    Err(vec!["Semantic analysis not fully implemented; TO-DO: implement compilation to SECD IR.".to_owned()])
 }

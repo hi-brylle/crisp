@@ -62,9 +62,9 @@ fn build_statement_symbol_table(statement: &Statement) -> SymbolTable {
     match statement {
         AssignmentStmt(assignment) => {
             for (name, info) in build_assignment_symbol_table(assignment).symbol_table {
-                if RESERVED_KEYWORDS.contains(&name.as_str()) {
-                    eprintln!("Variable declaration \"{}\" is a reserved keyword.", name)
-                }
+                // if RESERVED_KEYWORDS.contains(&name.as_str()) {
+                //     eprintln!("Variable declaration \"{}\" is a reserved keyword.", name)
+                // }
                 symbol_table.insert(name, info);
             }
         },
