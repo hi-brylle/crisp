@@ -32,7 +32,7 @@ pub fn build_program_symbol_table(program: &Program) -> SymbolTable {
     let mut symbol_table: HashMap<String, SymbolInfo> = HashMap::new();
 
     for statement in &program.statements {
-        for (name, info) in build_statement_symbol_table(statement) {
+        for (name, info) in build_statement_symbol_table(statement).symbol_table {
             symbol_table.insert(name, info);
         }
     }
@@ -42,12 +42,12 @@ pub fn build_program_symbol_table(program: &Program) -> SymbolTable {
     }
 }
 
-fn build_statement_symbol_table(statement: &Statement) -> HashMap<String, SymbolInfo> {
+fn build_statement_symbol_table(statement: &Statement) -> SymbolTable {
     let mut symbol_table: HashMap<String, SymbolInfo> = HashMap::new();
 
     match statement {
         AssignmentStmt(assignment) => {
-            for (name, info) in build_assignment_symbol_table(assignment) {
+            for (name, info) in build_assignment_symbol_table(assignment).symbol_table {
                 symbol_table.insert(name, info);
             }
         },
@@ -64,28 +64,32 @@ fn build_statement_symbol_table(statement: &Statement) -> HashMap<String, Symbol
                     scope_address: function_definition.scope_address.clone(),
                     kind: SymbolKind::FunctionDefinition(type_vector),
                     inner: Some(SymbolTable {
-                        symbol_table: build_function_def_symbol_table(function_definition)
+                        symbol_table: build_function_def_symbol_table(function_definition).symbol_table
                     }),
                 }
             );
         },
     }
 
-    symbol_table
+    SymbolTable {
+        symbol_table,
+    }
 }
 
-fn build_assignment_symbol_table(assignment: &Assignment) -> HashMap<String, SymbolInfo> {
-    HashMap::from([(
-        assignment.identifier.clone(),
-        SymbolInfo {
-            scope_address: assignment.scope_address.clone(),
-            kind: SymbolKind::VariableDeclaration(assignment.type_annotation.clone(), assignment.start_pos),
-            inner: None,
-        }
-    )])
+fn build_assignment_symbol_table(assignment: &Assignment) -> SymbolTable {
+    SymbolTable {
+        symbol_table: HashMap::from([(
+            assignment.identifier.clone(),
+            SymbolInfo {
+                scope_address: assignment.scope_address.clone(),
+                kind: SymbolKind::VariableDeclaration(assignment.type_annotation.clone(), assignment.start_pos),
+                inner: None,
+            }
+        )])
+    }
 }
 
-fn build_function_def_symbol_table(function_definition: &FunctionDefinition) -> HashMap<String, SymbolInfo> {
+fn build_function_def_symbol_table(function_definition: &FunctionDefinition) -> SymbolTable {
     let mut symbol_table: HashMap<String, SymbolInfo> = HashMap::new();
 
     for parameter in &function_definition.function_parameters {
@@ -100,10 +104,12 @@ fn build_function_def_symbol_table(function_definition: &FunctionDefinition) -> 
     }
 
     for statement in &function_definition.function_body.statements {
-        for (name, info) in build_statement_symbol_table(statement) {
+        for (name, info) in build_statement_symbol_table(statement).symbol_table {
             symbol_table.insert(name, info);
         }
     }
 
-    symbol_table
+    SymbolTable {
+        symbol_table,
+    }
 }
