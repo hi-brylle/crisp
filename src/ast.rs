@@ -6,7 +6,8 @@ pub struct Program {
 #[derive(Debug)]
 pub enum Statement {
     AssignmentStmt(Assignment),
-    FunctionDefStmt(FunctionDefinition)
+    FunctionDefStmt(FunctionDefinition),
+    PrintStmt(ExpressionTerm)
 }
 
 #[derive(Debug)]

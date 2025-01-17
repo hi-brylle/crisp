@@ -1,4 +1,0 @@
-/* numbers get parsed as f64 (for now) */
-let integer = 12; 
-let real = 420.69;
-let cent = 0.5;

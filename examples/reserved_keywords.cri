@@ -1,6 +1,0 @@
-let false = 1; /* "false" is a reserved keyword */
-
-fun add(a: Number, b: Number): Number {
-    let temp = (+ a b);
-    return temp
-};

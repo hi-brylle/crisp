@@ -1,7 +1,0 @@
-let sum1 = (add 42 69);
-let sum2 = (add 10 10);
-
-fun add(addend1: Number, addend2: Number): Number {
-    let temp = (+ addend1 addend2);
-    return temp
-};

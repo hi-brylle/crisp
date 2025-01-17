@@ -3,9 +3,11 @@ COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
 
 Program = { SOI ~ Statement+ ~ EOI }
 
-Statement = { (Assignment | FunctionDefinition) ~ ";" }
+Statement = { (Assignment | FunctionDefinition | Print) ~ ";" }
 
 Assignment = { ("let " | "let\t" | "let\n") ~ Identifier ~ (":" ~ Type)? ~ "=" ~ Expression }
+
+Print = { "println" ~ "(" ~ (Expression)? ~ ")" }
 
 FunctionDefinition = { ("fun " | "fun\t" | "fun\n") ~ Identifier ~
     "(" ~ FunctionParameters ~ ")" ~

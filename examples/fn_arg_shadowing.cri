@@ -1,7 +1,0 @@
-fun outer(arg1: Number): Number {
-    fun inner(arg1: Number): Number {
-        return (* arg1 arg1) /* to-do: deduplicate usages */
-    };
-
-    return (inner arg1)
-};
