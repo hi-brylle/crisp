@@ -45,6 +45,9 @@ fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
         Rule::FunctionDefinition => {
             Statement::FunctionDefStmt(build_function_def_ast(only_child))
         }
+        Rule::Print => {
+            Statement::PrintStmt(build_print_ast(only_child))
+        }
         _ => todo!("Handle other Statement types! (found {:?})", only_child.as_rule())
     } 
 }
@@ -87,6 +90,29 @@ fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
             }            
         }
         _ => todo!("Some Assignment AST builder children have not been accounted for! Unexpected children size: {}", children.len())
+    }
+}
+
+fn build_print_ast(pair: pest::iterators::Pair<Rule>) -> Print {
+    debug_pair(&pair);
+
+    // Contains possibly one item: the (optional) expression to be printed.
+    let mut children = pair.into_inner();
+
+    match children.len() {
+        0 => {
+            Print {
+                to_print: None,
+            }
+        }
+        1 => {
+            Print {
+                to_print: Some(ExpressionTerm {
+                    expression: build_expression_ast(children.next().unwrap()),
+                }),
+            }
+        }
+        _ => todo!("Some Print AST builder children have not been accounted for! Unexpected children size: {}", children.len())
     }
 }
 

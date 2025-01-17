@@ -7,7 +7,7 @@ pub struct Program {
 pub enum Statement {
     AssignmentStmt(Assignment),
     FunctionDefStmt(FunctionDefinition),
-    PrintStmt(ExpressionTerm)
+    PrintStmt(Print)
 }
 
 #[derive(Debug)]
@@ -16,6 +16,11 @@ pub struct Assignment {
     pub type_annotation: Option<TypeLiteral>,
     pub rhs: ExpressionTerm,
     pub start_pos: usize
+}
+
+#[derive(Debug)]
+pub struct Print {
+    pub to_print: Option<ExpressionTerm>
 }
 
 #[derive(Debug)]
