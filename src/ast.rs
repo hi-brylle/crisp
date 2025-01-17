@@ -1,6 +1,5 @@
 #[derive(Debug)]
 pub struct Program {
-    pub scope_address: String,
     pub statements: Vec<Statement>
 }
 
@@ -12,7 +11,6 @@ pub enum Statement {
 
 #[derive(Debug)]
 pub struct Assignment {
-    pub scope_address: String,
     pub identifier: String,
     pub type_annotation: Option<TypeLiteral>,
     pub rhs: ExpressionTerm,
@@ -21,7 +19,6 @@ pub struct Assignment {
 
 #[derive(Debug)]
 pub struct FunctionDefinition {
-    pub scope_address: String,
     pub function_name: String,
     pub function_parameters: Vec<FunctionParameter>,
     pub function_return_type: TypeLiteral,
@@ -30,7 +27,6 @@ pub struct FunctionDefinition {
 
 #[derive(Debug)]
 pub struct FunctionParameter {
-    pub scope_address: String,
     pub parameter_name: String,
     pub parameter_type: TypeLiteral
 }
@@ -51,7 +47,6 @@ pub enum TypeLiteral {
 
 #[derive(Debug)]
 pub struct ExpressionTerm {
-    pub enclosing_scope_address: String,
     pub expression: Expression
 }
 

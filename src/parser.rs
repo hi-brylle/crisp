@@ -3,12 +3,11 @@ use crate::{ast::*, Rule};
 pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
     debug_pair(&pair);
     
-    let scope_address = "(global)";
     let mut statements: Vec<Statement> = vec![];
 
     match pair.as_rule() {
         Rule::Program => {
-            // Contains one or more Statements and the EOI because pest includes it.
+            // Contains one or more Statements and the EOI because the pest library includes it in the parse.
             let mut children = pair.into_inner();
             
             for c in children {
@@ -18,7 +17,7 @@ pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
                         println!("=========\n");
                     },
                     Rule::Statement => {
-                        statements.push(build_statement_ast(scope_address, c));
+                        statements.push(build_statement_ast(c));
                     },
                     _ => unreachable!("Unexpected Program node child! (found {:?})", c.as_rule())
                 }
@@ -28,12 +27,11 @@ pub fn build_program_ast(pair: pest::iterators::Pair<Rule>) -> Program {
     }
 
     Program {
-        scope_address: scope_address.to_string(),
         statements
     }
 }
 
-fn build_statement_ast(parent_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> Statement {
+fn build_statement_ast(pair: pest::iterators::Pair<Rule>) -> Statement {
     debug_pair(&pair);
 
     // Always contains one item: the type of the Statement.
@@ -42,16 +40,16 @@ fn build_statement_ast(parent_scope_address: &str, pair: pest::iterators::Pair<R
     
     match only_child.as_rule() {
         Rule::Assignment => { 
-            Statement::AssignmentStmt(build_assignment_ast(parent_scope_address, only_child))
+            Statement::AssignmentStmt(build_assignment_ast(only_child))
         },
         Rule::FunctionDefinition => {
-            Statement::FunctionDefStmt(build_function_def_ast(parent_scope_address, only_child))
+            Statement::FunctionDefStmt(build_function_def_ast(only_child))
         }
         _ => todo!("Handle other Statement types! (found {:?})", only_child.as_rule())
     } 
 }
 
-fn build_assignment_ast(parent_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> Assignment {
+fn build_assignment_ast(pair: pest::iterators::Pair<Rule>) -> Assignment {
     debug_pair(&pair);
 
     let start_pos = pair.as_span().start();
@@ -62,12 +60,10 @@ fn build_assignment_ast(parent_scope_address: &str, pair: pest::iterators::Pair<
         2 => {
             let identifier = children.next().unwrap().as_str().to_owned();
             let rhs = ExpressionTerm {
-                enclosing_scope_address: parent_scope_address.to_owned() + "::" + &identifier.to_owned(),
                 expression: build_expression_ast(children.next().unwrap())
             };
         
             Assignment {
-                scope_address: parent_scope_address.to_owned() + "::" + &identifier.to_owned(),
                 identifier,
                 type_annotation: None,
                 rhs,
@@ -78,14 +74,12 @@ fn build_assignment_ast(parent_scope_address: &str, pair: pest::iterators::Pair<
             let identifier = children.next().unwrap().as_str().to_owned();
             let raw_type_literal = children.next().unwrap().as_str();
             let rhs =  ExpressionTerm {
-                enclosing_scope_address: parent_scope_address.to_owned() + "::" + &identifier.to_owned(),
                 expression: build_expression_ast(children.next().unwrap())
             };
         
             let type_literal: TypeLiteral = parse_type_literal(raw_type_literal);
 
             Assignment {
-                scope_address: parent_scope_address.to_owned() + "::" + &identifier.to_owned(),
                 identifier,
                 type_annotation: Some(type_literal),
                 rhs,
@@ -96,7 +90,7 @@ fn build_assignment_ast(parent_scope_address: &str, pair: pest::iterators::Pair<
     }
 }
 
-fn build_function_def_ast(parent_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> FunctionDefinition {
+fn build_function_def_ast(pair: pest::iterators::Pair<Rule>) -> FunctionDefinition {
     debug_pair(&pair);
 
     // Always contains fourthree items (even though some may actually be empty):
@@ -106,19 +100,17 @@ fn build_function_def_ast(parent_scope_address: &str, pair: pest::iterators::Pai
     println!("\nFunction def debug, children of length {}: {:?}\n", children.len(), children);
 
     let function_name = children.next().unwrap().as_str().parse::<String>().unwrap();
-    let scope_address= parent_scope_address.to_owned() + "::" + &function_name.to_owned();
 
     let mut function_parameters: Vec<FunctionParameter> = vec![];
     let function_parameters_raw = children.next().unwrap();
-    function_parameters.append(&mut build_function_params_ast(&scope_address, function_parameters_raw));
+    function_parameters.append(&mut build_function_params_ast(function_parameters_raw));
 
     let return_type_raw = children.next().unwrap().as_str();
     let function_return_type = parse_type_literal(return_type_raw);
 
-    let mut function_body: FunctionBody = build_function_body_ast(&scope_address, children.next().unwrap());
+    let mut function_body: FunctionBody = build_function_body_ast(children.next().unwrap());
 
     FunctionDefinition {
-        scope_address,
         function_name,
         function_parameters,
         function_return_type,
@@ -126,7 +118,7 @@ fn build_function_def_ast(parent_scope_address: &str, pair: pest::iterators::Pai
     }
 }
 
-fn build_function_params_ast(function_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> Vec<FunctionParameter> {
+fn build_function_params_ast(pair: pest::iterators::Pair<Rule>) -> Vec<FunctionParameter> {
     match pair.as_rule() {
         Rule::FunctionParameters => {
             let mut children = pair.into_inner();
@@ -147,7 +139,6 @@ fn build_function_params_ast(function_scope_address: &str, pair: pest::iterators
                             let parameter_type = parse_type_literal(param_type_raw);
                             
                             function_parameters.push(FunctionParameter {
-                                scope_address: function_scope_address.to_owned() + "::" + &parameter_name.to_owned(),
                                 parameter_name,
                                 parameter_type,
                             });
@@ -163,7 +154,7 @@ fn build_function_params_ast(function_scope_address: &str, pair: pest::iterators
     }
 }
 
-fn build_function_body_ast(function_scope_address: &str, pair: pest::iterators::Pair<Rule>) -> FunctionBody {
+fn build_function_body_ast(pair: pest::iterators::Pair<Rule>) -> FunctionBody {
     match pair.as_rule() {
         Rule::FunctionBody => {
             // Contains zero or more statements and an optional return expression. 
@@ -182,11 +173,10 @@ fn build_function_body_ast(function_scope_address: &str, pair: pest::iterators::
                 for c in children {
                     match c.as_rule() {
                         Rule::Statement => {
-                            statements.push(build_statement_ast(function_scope_address, c));
+                            statements.push(build_statement_ast(c));
                         },
                         Rule::Expression => {
                             return_expression = Some(ExpressionTerm {
-                                enclosing_scope_address: function_scope_address.to_owned(),
                                 expression: build_expression_ast(c),
                             })
                         },
