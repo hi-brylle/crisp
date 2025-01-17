@@ -9,22 +9,15 @@ pub struct GrammarParser;
 
 use ast::Program;
 use parser::build_program_ast;
-use symbol_table::SymbolTable;
-use symbol_table::build_program_symbol_table;
 
 mod ast;
 mod parser;
-mod scope;
-mod name_resolution;
-mod symbol_table;
 
 fn main() {
     let src = read_to_string(args().nth(1).unwrap()).unwrap();
 
     let frontend_result = 
-        parse_source(src)
-        .and_then(extract_symbol_table)
-        .and_then(semantic_analysis);
+        parse_source(src);
 
     match frontend_result {
         Ok(result) => {
@@ -51,17 +44,4 @@ fn parse_source(source: String) -> Result<Program, Vec<String>> {
             Err(vec![format!("Parse error: {:#?}", e)])
         },
     }
-}
-
-fn extract_symbol_table(program_ast: Program) -> Result<(SymbolTable, Program), Vec<String>> {
-    Ok((build_program_symbol_table(&program_ast), program_ast))
-}
-
-fn semantic_analysis(table_and_ast: (SymbolTable, Program)) -> Result<(SymbolTable, Program), Vec<String>> {
-    let (symbol_table, program_ast) = table_and_ast;
-    println!("\nSymbol table: {:#?}", program_ast);
-    println!();
-    println!("\nSymbol table: {:#?}", symbol_table);
-
-    Err(vec!["Semantic analysis not fully implemented; TO-DO: implement compilation to SECD IR.".to_owned()])
 }
